@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.4] - 2026-05-15
+
+### Changed
+
+- **README rewritten** — new structure leads with a concrete session example and
+  Mermaid graph output before installation instructions. Terminology blockquote
+  removed from the top; beta status compressed to one line; Codex/other-agent
+  install details collapsed to one paragraph; skill trigger table switched to
+  English-first with Japanese in parentheses; name etymology (`勉強`, "study")
+  added to the H1. Content is unchanged; order and emphasis are not.
+
 ## [0.4.3] - 2026-05-15
 
 ### Fixed
