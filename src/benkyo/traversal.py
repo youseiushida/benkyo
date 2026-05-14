@@ -117,16 +117,26 @@ def window(conn: sqlite3.Connection, project_id: str) -> dict[str, Any]:
 
 
 def project_scope(conn: sqlite3.Connection, project_id: str) -> dict[str, Any]:
-    """BFS from goals via prereq edges without the blackbox-terminal rule.
+    """BFS from (goals ∪ explicit project_concepts) without the blackbox-terminal rule.
 
-    Unlike window(), blackbox concepts do not stop traversal — their prereqs
-    are followed too. This gives the full prereq graph rooted at the goals.
+    Seeds: project_goals + all concepts with an explicit treatment row.
+    This gives every node the project has intentionally registered, plus
+    their full prereq chains (blackbox does not terminate traversal).
+    Unlike --scope graph, nodes belonging only to other projects are excluded.
     """
     project = repo.get_project(conn, project_id)
-    goal_ids = project["goals"]
 
-    visited: set[str] = set(goal_ids)
-    queue: list[str] = list(goal_ids)
+    explicit_concept_ids = {
+        r["concept_id"]
+        for r in conn.execute(
+            "SELECT concept_id FROM project_concepts WHERE project_id = ?",
+            (project_id,),
+        ).fetchall()
+    }
+    seeds = set(project["goals"]) | explicit_concept_ids
+
+    visited: set[str] = set(seeds)
+    queue: list[str] = list(seeds)
 
     while queue:
         current = queue.pop(0)

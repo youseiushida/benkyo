@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-05-15
+
+### Fixed
+
+- **`--scope project` seed set extended to `goals ∪ project_concepts`** —
+  previously only goal problems were used as BFS roots, so explicitly
+  blackbox-treated concepts (and their prereq chains) were excluded unless
+  reachable from a goal. Now any concept with an explicit treatment row is
+  also a seed, giving the full project footprint without including nodes that
+  belong only to other projects.
+
 ## [0.4.2] - 2026-05-15
 
 ### Added
@@ -318,7 +329,8 @@ Initial private release of the CLI core.
 - `--db` flag and `BENKYO_DB` environment variable for DB path override.
 - platformdirs-based default DB location (OS-appropriate app data dir).
 
-[Unreleased]: https://github.com/youseiushida/benkyo/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/youseiushida/benkyo/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/youseiushida/benkyo/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/youseiushida/benkyo/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/youseiushida/benkyo/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/youseiushida/benkyo/compare/v0.3.0...v0.4.0

@@ -1,6 +1,6 @@
 [project]
 name = "benkyo"
-version = "0.4.2"
+version = "0.4.3"
 description = "Problem-driven learning support CLI: concept dependency graph with per-project procedural/conceptual treatment"
 readme = "README.md"
 requires-python = ">=3.12"
