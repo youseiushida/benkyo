@@ -87,7 +87,7 @@ benkyo render --project <id> [--scope <window|project|graph>] [--format <mermaid
 ```
 
 - Default scope: `window` (BFS from goal problems via prereq edges).
-- `--scope project`: BFS from goals via prereq edges, blackbox nodes do NOT terminate traversal (unlike window). Shows the full prereq graph rooted at goals including concepts behind the blackbox boundary.
+- `--scope project`: BFS from (goals ∪ explicitly treated concepts) via prereq edges, blackbox nodes do NOT terminate traversal. Shows the full project footprint — goal chains + explicitly registered concepts and their prereqs — without including nodes that belong only to other projects.
 - `--scope graph`: entire global concept/problem graph.
 - Default format: mermaid (embeddable in markdown).
 - Without `--output`: raw text on stdout (pipe-friendly: `... --format dot | dot -Tpng > graph.png`).
