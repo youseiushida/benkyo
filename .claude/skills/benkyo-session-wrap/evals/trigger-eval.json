@@ -1,0 +1,18 @@
+[
+  {"query": "今日はここまで", "should_trigger": true},
+  {"query": "終わり, また明日", "should_trigger": true},
+  {"query": "あ, 急用入った. ごめん落ちる", "should_trigger": true},
+  {"query": "もう疲れた. ちょっと休む", "should_trigger": true},
+  {"query": "そろそろ寝るから, 今日のはここまでにする", "should_trigger": true},
+  {"query": "時間ないから一旦止める. 続きは週末", "should_trigger": true},
+  {"query": "もう 2 時間やってるよ, そろそろ区切る？", "should_trigger": true},
+
+  {"query": "次の問題やる", "should_trigger": false},
+  {"query": "今この概念詰まってる, 教えて", "should_trigger": false},
+  {"query": "ラプラス変換を勉強したい", "should_trigger": false},
+  {"query": "ちゃんと理解したい, この部分", "should_trigger": false},
+  {"query": "これ追加して", "should_trigger": false},
+  {"query": "前の session の続きやろう", "should_trigger": false},
+  {"query": "全体像見せて", "should_trigger": false},
+  {"query": "Python で wait する関数ってどう書く？", "should_trigger": false}
+]

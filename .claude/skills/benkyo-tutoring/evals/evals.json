@@ -1,0 +1,26 @@
+{
+  "skill_name": "benkyo-tutoring",
+  "evals": [
+    {
+      "id": 1,
+      "name": "stuck-on-concept-mid-session",
+      "prompt": "ODE 解こうとしてラプラス使ってるんだけど、L{f'(t)} = sF(s) - f(0) の意味が分からない。なんで f(0) が出てくる？",
+      "expected_output": "概念で詰まったケース。tutor は (a) 詰まりの種別を判定 ('概念自体が不明' に分類), (b) 当該 concept の treatment を benkyo treatment get で確認, (c) conceptual なら breakdown 開始, (d) その concept の prereq に降りる (定義 = ラプラス変換の積分定義), (e) 部分積分や境界項から f(0) が出てくる構造を導出, (f) 元の問題に戻る。breakdown 中の各段階で anticipation を埋める。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "high-confidence-wrong-attempt",
+      "prompt": "解いた: y'' + 3y' + 2y = e^(-t) を Laplace で解いたら, Y(s) = 1/(s+1)² だから y(t) = e^(-t) で確定. (自信あり)",
+      "expected_output": "高信頼度誤答ケース。Y(s) = 1/(s+1)² の逆ラプラス変換は t e^(-t) であって e^(-t) ではない (e^(-t) は 1/(s+1) の逆変換)。tutor は (a) 自信があるが間違っている状況を 'hypercorrection moment' として認識, (b) 正解 (t e^(-at) ↔ 1/(s+a)²) と対比して明示訂正, (c) なぜ誤った理由 (1/(s+1) と 1/(s+1)² を混同) を明確化, (d) この session 末か次 session 冒頭で同型問題の再 probe を仕込む。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "lazy-confirmation-trust-immediately",
+      "prompt": "ラプラス変換の定義, さっき教えてもらったから完璧に分かった。次行こう。",
+      "expected_output": "直後の自己評価ケース。stability bias / fluency illusion が働いている可能性が高い。tutor は (a) 直後の '分かった' を信用しない, (b) 軽い TAP-aligned probe を 1 問挟む (例: '今, L{e^(-3t)} を定義から計算してみて'), (c) 解ければ次へ進む, (d) 解けなければ補強。'テストするよ' という framing は使わず incidental に。",
+      "files": []
+    }
+  ]
+}

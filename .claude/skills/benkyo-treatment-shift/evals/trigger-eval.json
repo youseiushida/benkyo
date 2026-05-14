@@ -1,0 +1,18 @@
+[
+  {"query": "ラプラス変換, やっぱりちゃんと理解したい. 表だけだと不安", "should_trigger": true},
+  {"query": "部分分数分解の証明まで含めて深く知りたい", "should_trigger": true},
+  {"query": "もういい, これは公式で済ます. 先に進もう", "should_trigger": true},
+  {"query": "ここの導出は飛ばして, ラプラス変換表だけ用意してほしい", "should_trigger": true},
+  {"query": "もうちょっと突き詰めたい, この概念の本質を知りたい", "should_trigger": true},
+  {"query": "Bromwich 積分の breakdown 3 回目だけど, まだ詰まる. 元の問題から遠いし...", "should_trigger": true},
+  {"query": "なんでこの公式こうなるの？って疑問が頭から離れない. ちゃんと理解しないと", "should_trigger": true},
+
+  {"query": "次の問題出して", "should_trigger": false},
+  {"query": "今やってる問題の式変形が分からない, 教えて", "should_trigger": false},
+  {"query": "新しいプロジェクト立ち上げたい, 線形代数を", "should_trigger": false},
+  {"query": "今日はここまで, また明日", "should_trigger": false},
+  {"query": "これ追加しといて, 新しい概念見つけた", "should_trigger": false},
+  {"query": "RLC 回路の問題, 解いてみたら答えこうなった. 合ってる？", "should_trigger": false},
+  {"query": "前回までの全体像見せて", "should_trigger": false},
+  {"query": "session の途中で迷子になった, 今どこ？", "should_trigger": false}
+]

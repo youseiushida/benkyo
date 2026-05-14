@@ -1,0 +1,26 @@
+{
+  "skill_name": "benkyo-graph-edit",
+  "evals": [
+    {
+      "id": 1,
+      "name": "add-related-confusable-pair",
+      "prompt": "ラプラス変換とフーリエ変換, ごっちゃになる。何が違うんだっけ。",
+      "expected_output": "混同 signal。tutor は (a) 両 concept が graph にあるか確認, (b) 無ければ追加 (concept find で identity check 後), (c) 両者の間に related edge を追加 (related-confusable の意味で), (d) 学習者には '混同しやすいから, 区別するために両方並べる' のような natural language で説明, (e) 違いの説明を始める。'related edge', 'concept', 'graph' は使わない。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "split-by-granularity",
+      "prompt": "ラプラス変換ってのを 1 つにまとめてるけど, 表で引くのと畳み込み定理は別物では？",
+      "expected_output": "粒度の split 提案。tutor は (a) granularity-guide.md の 5 criteria を参照, (b) この split が妥当か判定 (criterion 1: treatment を変えたいか, criterion 2: prereq が違うか, criterion 5: 別個に probe 可能か), (c) 妥当なら concept fork を使うか, または手動で edge 再配分の提案, (d) 学習者には '細かく分けたい' / '別物として扱う' のような natural language で。'split', 'fork', 'granularity', 'criterion' は使わない。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "concept-already-exists",
+      "prompt": "微分の公式って項目作って欲しい",
+      "expected_output": "重複の可能性。tutor は (a) 必ず benkyo concept find --content '...' で同一性チェック, (b) 既存があれば 'すでに ○○ という項目があるけど, それで足りる？別物として作る？' と確認, (c) 別物なら追加, (d) 同じものなら既存を使う案内。'concept find' や 'global graph' は使わない。",
+      "files": []
+    }
+  ]
+}

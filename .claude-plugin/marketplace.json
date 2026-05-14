@@ -1,0 +1,25 @@
+{
+  "name": "benkyo",
+  "owner": {
+    "name": "Yosei Ushida"
+  },
+  "metadata": {
+    "description": "Problem-driven learning support: 5 Claude Code skills that turn Claude into a research-grounded tutor backed by the benkyo CLI",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "benkyo",
+      "description": "Tutoring skills (project-init, tutoring, treatment-shift, graph-edit, session-wrap) for problem-driven learning. Requires the benkyo CLI to be installed separately (uv tool install benkyo).",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./.claude/skills/benkyo-project-init",
+        "./.claude/skills/benkyo-tutoring",
+        "./.claude/skills/benkyo-treatment-shift",
+        "./.claude/skills/benkyo-graph-edit",
+        "./.claude/skills/benkyo-session-wrap"
+      ]
+    }
+  ]
+}

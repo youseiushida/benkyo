@@ -1,0 +1,26 @@
+{
+  "skill_name": "benkyo-session-wrap",
+  "evals": [
+    {
+      "id": 1,
+      "name": "clean-end-mid-progress",
+      "prompt": "今日はここまで, また明日やる。",
+      "expected_output": "標準的な session 終了。tutor は (a) 自然な区切り点で止める (mid-breakdown なら次の natural break まで進めるか確認), (b) 今日扱った内容を natural language で recap (3-4 行), (c) delayed JOL seed を solicitate ('明日でも説明できそうなのは？自信あり/まあまあ/自信ないで分けて'), (d) project.metadata に session note を追記, (e) 次回の起点を提示。'delayed JOL', 'session note', 'metadata' は学習者には言わない。'振り返り' / 'メモしとく' のような natural language で。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "abrupt-interruption",
+      "prompt": "あ, 急用入った, ごめん落ちる",
+      "expected_output": "急な終了。tutor は (a) 長い recap や delayed JOL を skip, (b) 戻れる目印だけを project.metadata に追記 ('中断, [現在位置] から再開' のような), (c) 学習者には 'メモしといた, 続きから入れるよ' のような短い acknowledgment, (d) お疲れの挨拶で締める。10 秒以内で終わる感じ。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "long-gap-resume",
+      "prompt": "(1 週間ぶりに戻る場面で) ようやく続き始めるかー, 何やってたっけ",
+      "expected_output": "長期間ブランク後の再開 (session wrap skill ではなく project-init の '長期間ブランク handling' でカバーする内容。session-wrap skill としては, '前回の wrap で記録した delayed JOL seed が今回 init で使われる' という連携を理解していれば十分)。tutor は project-init skill に defer する判断ができるべき。",
+      "files": []
+    }
+  ]
+}

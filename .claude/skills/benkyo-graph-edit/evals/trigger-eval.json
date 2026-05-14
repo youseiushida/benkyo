@@ -1,0 +1,17 @@
+[
+  {"query": "ラプラス変換とフーリエ変換, 混同しやすいから関連付けて", "should_trigger": true},
+  {"query": "微分の変換則, 1 階と 2 階で分けたい. プロパティ違うし", "should_trigger": true},
+  {"query": "『過渡応答』って項目作って. 今の RLC 問題で使う", "should_trigger": true},
+  {"query": "今ある『複素積分』と『経路積分』, 同じものだよね. 1 つにまとめて", "should_trigger": true},
+  {"query": "あれ, この関係おかしい. ラプラス変換が部分分数分解に依存するっていうエッジ, 逆じゃない？", "should_trigger": true},
+
+  {"query": "次の問題出して", "should_trigger": false},
+  {"query": "session 終わり", "should_trigger": false},
+  {"query": "ラプラス変換, ちゃんと理解したい", "should_trigger": false},
+  {"query": "今やってる問題の答え合わせ", "should_trigger": false},
+  {"query": "新しいプロジェクト始めたい, 機械学習で", "should_trigger": false},
+  {"query": "今の問題分からない, breakdown して", "should_trigger": false},
+  {"query": "concept 一覧見せて. 今プロジェクトに何があるか確認したい", "should_trigger": false},
+  {"query": "リーダブルコードってどんな本？", "should_trigger": false},
+  {"query": "Git で複数ブランチをマージするコマンド教えて", "should_trigger": false}
+]

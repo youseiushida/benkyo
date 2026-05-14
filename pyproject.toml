@@ -1,0 +1,49 @@
+[project]
+name = "benkyo"
+version = "0.1.0"
+description = "Problem-driven learning support CLI: concept dependency graph with per-project procedural/conceptual treatment"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Yosei Ushida" },
+]
+keywords = ["learning", "tutoring", "claude-code", "education", "knowledge-graph"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Education",
+]
+dependencies = [
+    "click>=8.1",
+    "platformdirs>=4.0",
+]
+
+[project.urls]
+Repository = "https://github.com/YoseiUshida/benkyo"
+Issues = "https://github.com/YoseiUshida/benkyo/issues"
+
+[project.scripts]
+benkyo = "benkyo.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/benkyo"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"

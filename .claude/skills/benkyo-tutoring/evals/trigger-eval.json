@@ -1,0 +1,19 @@
+[
+  {"query": "この RLC 回路問題, ラプラスで Y(s) = 1/(s²+3s+2) まで出したけど逆変換で詰まった。部分分数分解できない", "should_trigger": true},
+  {"query": "次の問題出して。さっきの ODE 解けたから, 似たやつもう一回挑戦したい", "should_trigger": true},
+  {"query": "L{f''(t)} = s²F(s) - sf(0) - f'(0) って覚えたけど, なんで f'(0) も引かれるの？", "should_trigger": true},
+  {"query": "今日の Bode 線図の問題, ζ=0.3 って計算したけど答えと違う。どこ間違えた？", "should_trigger": true},
+  {"query": "分かった。次行こう", "should_trigger": true},
+  {"query": "もう少し簡単な ODE で練習させてもらえる？2 階より 1 階のやつから", "should_trigger": true},
+  {"query": "テスト形式でやって。さっき教わった範囲", "should_trigger": true},
+  {"query": "うーん, ラプラス変換の表は分かるけど, シフトの公式 e^(-at) f(t) ↔ F(s+a) がイマイチ", "should_trigger": true},
+
+  {"query": "Python で sqlite3 を使ってデータベース作りたいんだけど書き方教えて", "should_trigger": false},
+  {"query": "明日の会議の議題まとめておいてほしい, 営業会議の方", "should_trigger": false},
+  {"query": "新しい本買ったから読書感想文書きたい, 構成考えて", "should_trigger": false},
+  {"query": "Rust の Result 型と Option 型の使い分けで悩んでる, 例見せて", "should_trigger": false},
+  {"query": "今日の天気どう？外出したい気分", "should_trigger": false},
+  {"query": "彼女との関係について悩んでる, ちょっと聞いてほしい", "should_trigger": false},
+  {"query": "新しいプロジェクトを始めたい, Rails の new プロジェクト立ち上げの手順を", "should_trigger": false},
+  {"query": "卒論の参考文献の引用形式を APA に統一したい", "should_trigger": false}
+]

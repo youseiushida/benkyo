@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# benkyo eval artifacts (not for distribution)
+.claude/skills/*-workspace/
+.claude/skills/comparison-report.md
+
+# OCR'd papers (third-party copyright — kept locally for personal study only)
+docs/

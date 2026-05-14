@@ -1,0 +1,18 @@
+[
+  {"query": "ラプラス変換を勉強したいんだけど何から始めれば？", "should_trigger": true},
+  {"query": "電気回路の試験勉強始めたい, シラバスはこれ [PDF]. 過去問もある", "should_trigger": true},
+  {"query": "古典制御の Bode 線図系を完璧にしたい. ゼロから教科書も全部読む覚悟", "should_trigger": true},
+  {"query": "何か勉強したいんだけど特に決めてない. 暇だし何か面白いやつ提案して", "should_trigger": true},
+  {"query": "前にやってた量子力学のプロジェクト, 2 ヶ月前で止まってたけど再開したい", "should_trigger": true},
+  {"query": "新しい教科書買ったから一緒に進めたい. 微分幾何学", "should_trigger": true},
+  {"query": "学部のリーディングリストにある『熱力学』の本, 期末までに通読したい", "should_trigger": true},
+
+  {"query": "数学的に正しい証明の書き方教えて, 形式論理の", "should_trigger": false},
+  {"query": "今やってる ODE 問題の続きやろう, ラプラスで Y(s) まで出した", "should_trigger": false},
+  {"query": "前の session の続きから. 留数定理を理解する所までやった", "should_trigger": false},
+  {"query": "コードレビューしてほしい, 関数の責任分割の観点で", "should_trigger": false},
+  {"query": "プレゼン資料の構成で迷ってる, アジェンダ案見て", "should_trigger": false},
+  {"query": "今日は疲れたから今までやってきた勉強は休んで, 何か別のことしたい", "should_trigger": false},
+  {"query": "ヘブライ語を勉強したいけど, 既存ツール (Duolingo とか) と比較してどれがいい？", "should_trigger": false},
+  {"query": "今やってる project の現在地確認したい", "should_trigger": false}
+]
