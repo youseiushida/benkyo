@@ -24,7 +24,7 @@ benkyo concept merge <source_id> --into <canonical_id> [--on-conflict <error|kee
 benkyo concept fork <source_id> --content <text>             # or --content-file; create a new concept that copies source's edges (treatments NOT copied)
 ```
 
-**`name` field**: short label used in graph diagrams and breakdown output. Auto-extracted from the first `Name: ...` token in content. Override explicitly when the auto-extracted form is wrong or you want a custom abbreviation.
+**`name` field**: short label used in graph diagrams and breakdown output. **Always pass `--name` explicitly** — auto-extraction (colon-split fallback) retains parentheticals and "と"-joined pairs verbatim and is not reliable.
 ```
 benkyo concept add --name "凸関数" --content "凸関数: f: C→ℝ は全ての x,y と t∈[0,1] で..."
 benkyo concept update c7 --name "LP標準形"    # update label only, keep content

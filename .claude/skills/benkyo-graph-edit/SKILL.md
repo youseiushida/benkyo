@@ -192,7 +192,8 @@ See `benkyo-treatment-shift` skill for the standards. Tables, formulas, recipes 
 benkyo concept find --content "<intended name>"
 
 # Step 2 (if no match):
-benkyo concept add --content "<name>: <1-3 sentence definition>"
+benkyo concept add --name "<short label>" --content "<name>: <1-3 sentence definition>"
+# --name is always required: pick the shortest unambiguous label (no parentheticals, no "と"-joined pairs)
 
 # Step 3: add prereq edges if any
 benkyo edge add --from <new_id> --to <prereq_id> --type prereq
