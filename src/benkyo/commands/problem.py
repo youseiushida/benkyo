@@ -14,19 +14,20 @@ def problem_group():
 
 
 @problem_group.command(name="add")
+@click.option("--name", default=None, help="Short display name for graph labels (e.g. '2024 問1')")
 @click.option("--statement", default=None)
 @click.option("--statement-file", default=None, type=click.Path())
 @click.option("--answer", default=None)
 @click.option("--answer-file", default=None, type=click.Path())
 @click.pass_context
 @handle_errors
-def add(ctx, statement, statement_file, answer, answer_file):
+def add(ctx, name, statement, statement_file, answer, answer_file):
     """Add a new problem node."""
     stmt = resolve_text(statement, statement_file)
     ans = resolve_text(answer, answer_file)
     if stmt is None or ans is None:
         raise click.UsageError("--statement(-file) and --answer(-file) are required")
-    output_ok(repo.create_problem(get_conn(ctx), stmt, ans))
+    output_ok(repo.create_problem(get_conn(ctx), stmt, ans, name=name))
 
 
 @problem_group.command(name="get")
@@ -40,17 +41,18 @@ def get(ctx, problem_id):
 
 @problem_group.command(name="update")
 @click.argument("problem_id")
+@click.option("--name", default=None, help="Short display name for graph labels")
 @click.option("--statement", default=None)
 @click.option("--statement-file", default=None, type=click.Path())
 @click.option("--answer", default=None)
 @click.option("--answer-file", default=None, type=click.Path())
 @click.pass_context
 @handle_errors
-def update(ctx, problem_id, statement, statement_file, answer, answer_file):
-    """Update statement and/or answer of a problem node."""
+def update(ctx, problem_id, name, statement, statement_file, answer, answer_file):
+    """Update name, statement, and/or answer of a problem node."""
     stmt = resolve_text(statement, statement_file)
     ans = resolve_text(answer, answer_file)
-    output_ok(repo.update_problem(get_conn(ctx), problem_id, stmt, ans))
+    output_ok(repo.update_problem(get_conn(ctx), problem_id, stmt, ans, name=name))
 
 
 @problem_group.command(name="delete")

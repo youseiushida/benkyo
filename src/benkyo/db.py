@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS concept_nodes (
 
 CREATE TABLE IF NOT EXISTS problem_nodes (
     id TEXT PRIMARY KEY,
+    name TEXT,
     statement TEXT NOT NULL,
     answer TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -182,6 +183,24 @@ def _migrate_v03_to_v04(conn: sqlite3.Connection) -> None:
         raise
 
 
+def _migrate_add_problem_name(conn: sqlite3.Connection) -> None:
+    """Add name column to problem_nodes (v0.4.2+). No auto-backfill — name is set explicitly."""
+    columns = [
+        row[1]
+        for row in conn.execute("PRAGMA table_info(problem_nodes)").fetchall()
+    ]
+    if not columns or "name" in columns:
+        return
+
+    conn.execute("BEGIN")
+    try:
+        conn.execute("ALTER TABLE problem_nodes ADD COLUMN name TEXT")
+        conn.execute("COMMIT")
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+
+
 def connect(db_path: Path) -> sqlite3.Connection:
     """Open a DB connection. Enables FK enforcement and initializes the schema.
 
@@ -195,6 +214,7 @@ def connect(db_path: Path) -> sqlite3.Connection:
     conn.execute("PRAGMA busy_timeout = 5000")
     _migrate_v02_to_v03(conn)
     _migrate_v03_to_v04(conn)
+    _migrate_add_problem_name(conn)
     conn.executescript(SCHEMA)
     return conn
 

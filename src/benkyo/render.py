@@ -17,6 +17,12 @@ def _concept_label(node: dict[str, Any]) -> str:
     return name if name else _truncate(node["content"])
 
 
+def _problem_label(node: dict[str, Any]) -> str:
+    """Short display label for a problem node (name → fallback to truncated statement)."""
+    name = (node.get("name") or "").strip()
+    return name if name else _truncate(node["statement"], 40)
+
+
 # ---------------------------------------------------------------------------
 # DOT (Graphviz)
 # ---------------------------------------------------------------------------
@@ -36,7 +42,7 @@ def to_dot(window_data: dict[str, Any], graph_name: str = "benkyo") -> str:
     for node in window_data["nodes"]:
         node_id = node["id"]
         if node["type"] == "problem":
-            label = _dot_escape(_truncate(node["statement"], 40))
+            label = _dot_escape(_problem_label(node))
             lines.append(
                 f'    "{node_id}" [label="{label}", '
                 f'shape=box, style="rounded,filled", fillcolor="#f0f4ff"];'
@@ -107,7 +113,7 @@ def to_mermaid(window_data: dict[str, Any]) -> str:
     for node in window_data["nodes"]:
         node_id = node["id"]
         if node["type"] == "problem":
-            label = _mermaid_escape(_truncate(node["statement"], 40))
+            label = _mermaid_escape(_problem_label(node))
             lines.append(f'    {node_id}(["{label}"])')
             problem_ids.append(node_id)
         elif node["type"] == "concept":

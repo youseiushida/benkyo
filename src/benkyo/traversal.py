@@ -41,6 +41,7 @@ def _node_payload(
         return {
             "id": node_id,
             "type": "problem",
+            "name": pdata.get("name"),
             "statement": pdata["statement"],
             "answer": pdata["answer"],
         }

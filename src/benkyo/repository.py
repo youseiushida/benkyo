@@ -193,7 +193,7 @@ def find_concept_by_content(
 
 
 def create_problem(
-    conn: sqlite3.Connection, statement: str, answer: str
+    conn: sqlite3.Connection, statement: str, answer: str, name: str | None = None
 ) -> dict[str, Any]:
     statement = (statement or "").strip()
     answer = (answer or "").strip()
@@ -201,10 +201,11 @@ def create_problem(
         raise InvalidArgError("statement must not be empty")
     if not answer:
         raise InvalidArgError("answer must not be empty")
+    problem_name = (name or "").strip() or None
     new_id = next_id(conn, PROBLEM_PREFIX)
     conn.execute(
-        "INSERT INTO problem_nodes (id, statement, answer) VALUES (?, ?, ?)",
-        (new_id, statement, answer),
+        "INSERT INTO problem_nodes (id, name, statement, answer) VALUES (?, ?, ?, ?)",
+        (new_id, problem_name, statement, answer),
     )
     return get_problem(conn, new_id)
 
@@ -223,8 +224,9 @@ def update_problem(
     problem_id: str,
     statement: str | None = None,
     answer: str | None = None,
+    name: str | None = None,
 ) -> dict[str, Any]:
-    if statement is None and answer is None:
+    if statement is None and answer is None and name is None:
         raise InvalidArgError("nothing to update")
 
     if not _node_exists(conn, problem_id) or not problem_id.startswith(PROBLEM_PREFIX):
@@ -245,6 +247,14 @@ def update_problem(
         conn.execute(
             "UPDATE problem_nodes SET answer = ? WHERE id = ?",
             (answer, problem_id),
+        )
+    if name is not None:
+        name = name.strip()
+        if not name:
+            raise InvalidArgError("name must not be empty")
+        conn.execute(
+            "UPDATE problem_nodes SET name = ? WHERE id = ?",
+            (name, problem_id),
         )
     return get_problem(conn, problem_id)
 
