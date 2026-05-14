@@ -37,7 +37,7 @@ def breakdown_cmd(ctx, project_id, node_id):
 @click.pass_context
 @handle_errors
 def frontier_cmd(ctx, project_id):
-    """List procedural concepts within the window (promotion candidates)."""
+    """List blackbox concepts within the window (promotion candidates)."""
     items = traversal.frontier(get_conn(ctx), project_id)
     output_ok(items, count=len(items))
 

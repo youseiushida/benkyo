@@ -61,20 +61,20 @@ class TestMergeConcept:
         c2 = repo.create_concept(conn, "B")
         proj = repo.create_project(conn, "P")
         # only c2 has treatment in project
-        repo.set_treatment(conn, proj["id"], c2["id"], "procedural", "ref")
+        repo.set_treatment(conn, proj["id"], c2["id"], "blackbox", "ref")
 
         result = repo.merge_concept(conn, c2["id"], c1["id"])
         assert result["treatments_redirected"] == 1
         # now c1 has the treatment
         t = repo.get_treatment(conn, proj["id"], c1["id"])
-        assert t["treatment"] == "procedural"
+        assert t["treatment"] == "blackbox"
 
     def test_merge_treatment_conflict_error(self, conn):
         c1 = repo.create_concept(conn, "A")
         c2 = repo.create_concept(conn, "B")
         proj = repo.create_project(conn, "P")
-        repo.set_treatment(conn, proj["id"], c1["id"], "conceptual")
-        repo.set_treatment(conn, proj["id"], c2["id"], "procedural", "ref")
+        repo.set_treatment(conn, proj["id"], c1["id"], "whitebox")
+        repo.set_treatment(conn, proj["id"], c2["id"], "blackbox", "ref")
         with pytest.raises(ConflictError):
             repo.merge_concept(conn, c2["id"], c1["id"], on_conflict="error")
 
@@ -82,27 +82,27 @@ class TestMergeConcept:
         c1 = repo.create_concept(conn, "A")
         c2 = repo.create_concept(conn, "B")
         proj = repo.create_project(conn, "P")
-        repo.set_treatment(conn, proj["id"], c1["id"], "conceptual")
-        repo.set_treatment(conn, proj["id"], c2["id"], "procedural", "ref")
+        repo.set_treatment(conn, proj["id"], c1["id"], "whitebox")
+        repo.set_treatment(conn, proj["id"], c2["id"], "blackbox", "ref")
         result = repo.merge_concept(
             conn, c2["id"], c1["id"], on_conflict="keep_canonical"
         )
         assert result["treatments_skipped"] == 1
         t = repo.get_treatment(conn, proj["id"], c1["id"])
-        assert t["treatment"] == "conceptual"  # kept
+        assert t["treatment"] == "whitebox"  # kept
 
     def test_merge_treatment_keep_source(self, conn):
         c1 = repo.create_concept(conn, "A")
         c2 = repo.create_concept(conn, "B")
         proj = repo.create_project(conn, "P")
-        repo.set_treatment(conn, proj["id"], c1["id"], "conceptual")
-        repo.set_treatment(conn, proj["id"], c2["id"], "procedural", "ref-source")
+        repo.set_treatment(conn, proj["id"], c1["id"], "whitebox")
+        repo.set_treatment(conn, proj["id"], c2["id"], "blackbox", "ref-source")
         result = repo.merge_concept(
             conn, c2["id"], c1["id"], on_conflict="keep_source"
         )
         assert result["treatments_redirected"] == 1
         t = repo.get_treatment(conn, proj["id"], c1["id"])
-        assert t["treatment"] == "procedural"
+        assert t["treatment"] == "blackbox"
         assert t["reference_content"] == "ref-source"
 
     def test_merge_self_rejected(self, conn):
@@ -191,13 +191,13 @@ class TestForkConcept:
     def test_fork_no_treatment_copy(self, conn):
         c1 = repo.create_concept(conn, "A")
         proj = repo.create_project(conn, "P")
-        repo.set_treatment(conn, proj["id"], c1["id"], "procedural", "ref")
+        repo.set_treatment(conn, proj["id"], c1["id"], "blackbox", "ref")
 
         result = repo.fork_concept(conn, c1["id"])
         # new concept has default treatment, no explicit setting
         t = repo.get_treatment(conn, proj["id"], result["new_id"])
         assert t["default"] is True
-        assert t["treatment"] == "conceptual"
+        assert t["treatment"] == "whitebox"
 
     def test_fork_not_found(self, conn):
         with pytest.raises(NotFoundError):

@@ -37,9 +37,9 @@ def to_dot(window_data: dict[str, Any], graph_name: str = "benkyo") -> str:
             )
         elif node["type"] == "concept":
             content = _truncate(node["content"])
-            if node["treatment"] == "procedural":
+            if node["treatment"] == "blackbox":
                 lines.append(
-                    f'    "{node_id}" [label="{_dot_escape(content)}\\n[procedural]", '
+                    f'    "{node_id}" [label="{_dot_escape(content)}\\n[blackbox]", '
                     f'shape=cylinder, style=filled, fillcolor="lightgrey"];'
                 )
             else:
@@ -80,8 +80,8 @@ def to_mermaid(window_data: dict[str, Any]) -> str:
 
     Shape conventions:
         - problem node: ([...])  stadium
-        - conceptual concept: [...]   rectangle
-        - procedural concept: [(...)] cylinder (suggests "stored reference")
+        - whitebox concept: [...]   rectangle
+        - blackbox concept: [(...)] cylinder (suggests "stored reference")
 
     Edge conventions:
         - prereq:  -->
@@ -96,9 +96,9 @@ def to_mermaid(window_data: dict[str, Any]) -> str:
             lines.append(f'    {node_id}(["{_mermaid_escape(label)}"])')
         elif node["type"] == "concept":
             content = _truncate(node["content"])
-            if node["treatment"] == "procedural":
+            if node["treatment"] == "blackbox":
                 lines.append(
-                    f'    {node_id}[("{_mermaid_escape(content)} [procedural]")]'
+                    f'    {node_id}[("{_mermaid_escape(content)} [blackbox]")]'
                 )
             else:
                 lines.append(f'    {node_id}["{_mermaid_escape(content)}"]')

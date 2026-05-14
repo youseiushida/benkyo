@@ -221,6 +221,7 @@ __marimo__/
 .claude/skills/*-workspace/
 .claude/skills/comparison-report*.md
 .claude/skills/citation-fact-check.md
+.claude/skills/v0_3_leak_count.py
 
 # OCR'd papers (third-party copyright — kept locally for personal study only)
 docs/

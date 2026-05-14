@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Problem-driven learning support: 5 Claude Code skills that turn Claude into a research-grounded tutor backed by the benkyo CLI",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "plugins": [
     {

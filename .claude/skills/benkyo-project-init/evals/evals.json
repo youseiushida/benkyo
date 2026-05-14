@@ -5,14 +5,14 @@
       "id": 1,
       "name": "vague-subject-named",
       "prompt": "ラプラス変換を勉強したい、何から始めれば？",
-      "expected_output": "学習者が漠然と subject を提示した時の typical case。既存 prj1 (ラプラス変換 ODE) を発見した場合は (a) `benkyo events list --project prj1 --kind session_end --limit 1` で前回 pending を確認, (b) `benkyo events list --project prj1 --kind delayed_jol_recorded --limit 10` で JOL 履歴を recovery, (c) 'resume / 差し替え / 更地' の 3 択を提示し選ばせる。新規開始の場合は (a) 具体 goal を 3-4 例で提示し選ばせる, (b) 教材の有無確認, (c) rapid diagnostic, (d) concept graph と初期 cut の提案と確認, (e) benkyo CLI で project/problem/concept/edge/treatment 作成。学習者向け発話に procedural/conceptual/cut/treatment/node/edge/project/event/log/record/JSON/c<n>/p<n>/prj<n> など内部用語が現れないこと。",
+      "expected_output": "学習者が漠然と subject を提示した時の typical case。既存 prj1 (ラプラス変換 ODE) を発見した場合は (a) `benkyo events list --project prj1 --kind session_end --limit 1` で前回 pending を確認, (b) `benkyo events list --project prj1 --kind delayed_jol_recorded --limit 10` で JOL 履歴を recovery, (c) 'resume / 差し替え / 更地' の 3 択を提示し選ばせる。新規開始の場合は (a) 具体 goal を 3-4 例で提示し選ばせる, (b) 教材の有無確認, (c) rapid diagnostic, (d) concept graph と初期 cut の提案と確認, (e) benkyo CLI で project/problem/concept/edge/treatment 作成。学習者向け発話に blackbox/whitebox/cut/treatment/node/edge/project/event/log/record/JSON/c<n>/p<n>/prj<n> など内部用語が現れないこと。",
       "files": []
     },
     {
       "id": 2,
       "name": "concrete-goal-with-materials",
       "prompt": "電気回路の試験勉強したい。教科書は『回路理論』, シラバスでは RLC 回路と過渡応答が範囲。過去問は別途渡せる。",
-      "expected_output": "資料豊富ケース。tutor は (a) 教科書とシラバスを読んだ前提で graph を提案, (b) 過去問の有無に従って goal 問題を抽出, (c) 教科書での扱いから初期 cut を提案 (prune-first), (d) 確認をとって project 作成。資料の中で公式・表として扱われている物を procedural, 導出が含まれる物を conceptual として提案する。",
+      "expected_output": "資料豊富ケース。tutor は (a) 教科書とシラバスを読んだ前提で graph を提案, (b) 過去問の有無に従って goal 問題を抽出, (c) 教科書での扱いから初期 cut を提案 (prune-first), (d) 確認をとって project 作成。資料の中で公式・表として扱われている物を blackbox, 導出が含まれる物を whitebox として提案する。",
       "files": []
     },
     {

@@ -1,6 +1,6 @@
 # Natural language → benkyo CLI operation mapping
 
-This is the translation layer between what the learner says (in natural language) and what the tutor (Claude Code) does internally with `benkyo` CLI. The learner does NOT know about procedural/conceptual/treatment/cut/prereq/related/node/edge/window/event/log/record/schema/JSON — these are all internal vocabulary.
+This is the translation layer between what the learner says (in natural language) and what the tutor (Claude Code) does internally with `benkyo` CLI. The learner does NOT know about blackbox/whitebox/treatment/cut/prereq/related/node/edge/window/event/log/record/schema/JSON — these are all internal vocabulary.
 
 When the learner uses one of those terms unprompted, accept it; but never introduce them yourself.
 
@@ -11,14 +11,14 @@ When the learner uses one of those terms unprompted, accept it; but never introd
 | 「○○を勉強したい」「I want to study X」 | new project or extend existing | `project list` → if none for X, propose `project create`; if one exists, propose resuming |
 | 「○○の試験勉強」「exam prep for X」 | test-prep project | `project create` + ask for materials (syllabus, past exams) |
 | 「○○ができるようになりたい」「I want to be able to do Y」 | concrete goal expression | translate to a problem node; `problem add` or identify existing |
-| 「これ全部知ってる」「I already know all this」 | expertise self-declaration | run a brief rapid diagnostic (1-2 probes); if confirmed, mark related concepts procedural |
+| 「これ全部知ってる」「I already know all this」 | expertise self-declaration | run a brief rapid diagnostic (1-2 probes); if confirmed, mark related concepts blackbox |
 
 ## B. Concept queries
 
 | Learner says | Meaning | Internal action |
 |---|---|---|
-| 「Xって何？」「What is X?」 | identification query | `treatment get`; if procedural → reference; if conceptual → brief intro + "want to dig in?" |
-| 「X についてもっと」「Tell me more about X」 | depth request, commit candidate | confirm intent → `treatment unset` (or `set conceptual`) and ensure prereqs |
+| 「Xって何？」「What is X?」 | identification query | `treatment get`; if blackbox → reference; if whitebox → brief intro + "want to dig in?" |
+| 「X についてもっと」「Tell me more about X」 | depth request, commit candidate | confirm intent → `treatment unset` (or `set whitebox`) and ensure prereqs |
 | 「X 知らない」「Don't know X」 | unknown to learner | choose breakdown or reference based on treatment + context |
 | 「Xって Y と違うの？」「Is X different from Y?」 | confusion signal | compare contents, consider adding `related` edge for the confusable pair |
 
@@ -26,10 +26,10 @@ When the learner uses one of those terms unprompted, accept it; but never introd
 
 | Learner says | Meaning | Internal action |
 |---|---|---|
-| 「理解したい」「腹落ちしたい」「導出やりたい」「なぜそうなるの？」 | want conceptual treatment | `treatment unset` or `treatment set conceptual` + ensure 1-level prereqs exist (default procedural) |
-| 「公式覚えれば」「暗記で」「表があれば十分」「道具として割り切る」 | want procedural treatment | `treatment set --procedural --reference <prepared content>` |
-| 「もうちょっと深く」「突き詰めたい」「上に上げて」 | commit signal | same as conceptual want |
-| 「もういい、戻して」「ざっくりで」「飛ばして」 | release signal | prepare reference, `treatment set --procedural` |
+| 「理解したい」「腹落ちしたい」「導出やりたい」「なぜそうなるの？」 | want whitebox treatment | `treatment unset` or `treatment set whitebox` + ensure 1-level prereqs exist (default blackbox) |
+| 「公式覚えれば」「暗記で」「表があれば十分」「道具として割り切る」 | want blackbox treatment | `treatment set --blackbox --reference <prepared content>` |
+| 「もうちょっと深く」「突き詰めたい」「上に上げて」 | commit signal | same as whitebox want |
+| 「もういい、戻して」「ざっくりで」「飛ばして」 | release signal | prepare reference, `treatment set --blackbox` |
 
 ## D. Problem actions
 
@@ -58,7 +58,7 @@ When the learner uses one of those terms unprompted, accept it; but never introd
 |---|---|---|
 | 「今何やってる？」 | current location | summarize breakdown stack + original problem |
 | 「どこまでやった？」 | progress check | `window` + completed-problem history from project metadata |
-| 「残ってる物は？」 | remaining items | `frontier` (procedural promotion candidates) + uncompleted problems |
+| 「残ってる物は？」 | remaining items | `frontier` (blackbox promotion candidates) + uncompleted problems |
 | 「全体見せて」 | overview | `render --format mermaid` and present visually |
 
 ## G. Graph edits (occasional)
@@ -68,8 +68,8 @@ When the learner uses one of those terms unprompted, accept it; but never introd
 | 「これとあれは関連してる」 | add related edge | `edge add --type related` |
 | 「これは別物」 | edge is wrong | `edge delete` |
 | 「これも追加して」 | new concept/problem | `concept add` or `problem add` + edges; ALWAYS run `concept find` first for identity |
-| 「これとこれ同じ」 | merge candidate | `concept merge` (when implemented; for now: manual edge redirect + delete) |
-| 「これは細かく分けたい」 | split candidate | `concept fork` (when implemented) + manual edge redistribute |
+| 「これとこれ同じ」 / 「これとこれまとめて」 | merge candidate | `concept find` で identity 検証 → `concept merge <source> --into <canonical>` で edges + project_concepts を redirect。treatment 衝突時は `--on-conflict <error\|keep_canonical\|keep_source>` で解決。problem は `problem merge` で同様 |
+| 「これは細かく分けたい」 / 「これは別物にしたい」 | split candidate | granularity 5 criteria で確認 → `concept fork <source> --content <new content>` で新概念を作成 (edges は copy, treatments は **copy されない** = project ごとに再設定が必要) → 元概念から不要 edge を `edge delete` |
 
 ## H. Session boundaries and history (events log)
 
@@ -107,18 +107,18 @@ These don't appear as direct mappings but inform interpretation:
 
 | Signal | Interpretation | Response |
 |---|---|---|
-| Question form ("〜って何？", "なんで？") | concept query or conceptual gap | brief explanation + offer to dig |
+| Question form ("〜って何？", "なんで？") | concept query or whitebox gap | brief explanation + offer to dig |
 | Imperative ("教えて", "やって") | instruction request | direct response of that type |
 | Negation ("違う", "分からない") | stuck or correction needed | stuck-handling protocol |
 | Affirmation ("分かった", "OK") | progress signal — but stability bias applies | light verification probe |
 | Silence / long delays | thinking or stuck | wait; if extended, ask gently |
-| "あ、それ知ってる" | spontaneous expertise claim | procedural candidate; brief diagnostic |
+| "あ、それ知ってる" | spontaneous expertise claim | blackbox candidate; brief diagnostic |
 | "あー、なるほど" | comprehension claim | high-risk; verify with delayed JOL or probe |
 | Typo/short messages | low-stakes thinking | don't over-react |
 
 ## Three cardinal rules
 
-1. **Never expose internal vocabulary** (procedural/conceptual/treatment/cut/prereq/related/node/edge/window/traversal/event/log/record/schema/JSON/metadata, plus internal IDs `c<n>` / `p<n>` / `prj<n>` / `e<n>`) in learner-facing utterances. Translate to natural language.
+1. **Never expose internal vocabulary** (blackbox/whitebox/treatment/cut/prereq/related/node/edge/window/traversal/event/log/record/schema/JSON/metadata, plus internal IDs `c<n>` / `p<n>` / `prj<n>` / `e<n>`) in learner-facing utterances. Translate to natural language.
 
 2. **When in doubt, ask in natural terms.** Better to confirm "ここは公式使えればいい？それとも導出も？" than to silently make a treatment decision the learner didn't intend.
 

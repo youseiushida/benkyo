@@ -19,6 +19,9 @@ benkyo concept update <id> --content <text>
 benkyo concept delete <id>                           # cascades to project_concepts and edges
 benkyo concept list [--query <text>]                 # substring filter on content
 benkyo concept find --content <text>                 # exact-match (identity check; ALWAYS run before add)
+benkyo concept merge <source_id> --into <canonical_id> [--on-conflict <error|keep_canonical|keep_source>]
+                                                     # collapse duplicate; redirects edges + project_concepts; --on-conflict resolves treatment clashes
+benkyo concept fork <source_id> --content <text>     # or --content-file; create a new concept that copies source's edges (treatments NOT copied)
 ```
 
 ## Problem nodes
@@ -29,6 +32,8 @@ benkyo problem get <id>
 benkyo problem update <id> [--statement <text>] [--answer <text>]
 benkyo problem delete <id>
 benkyo problem list [--query <text>]
+benkyo problem merge <source_id> --into <canonical_id>
+                                                     # collapse duplicate; redirects edges + project_goals
 ```
 
 ## Edges
@@ -54,18 +59,18 @@ benkyo project list
 ## Treatment (per (project, concept))
 
 ```
-benkyo treatment set --project <id> --concept <id> --treatment <procedural|conceptual> [--reference <text>]
+benkyo treatment set --project <id> --concept <id> --treatment <blackbox|whitebox> [--reference <text>]
 benkyo treatment get --project <id> --concept <id>   # returns {treatment, default: bool}; default=true means unset
-benkyo treatment unset --project <id> --concept <id> # back to default (conceptual)
-benkyo treatment list --project <id> [--treatment <procedural|conceptual>]
+benkyo treatment unset --project <id> --concept <id> # back to default (whitebox)
+benkyo treatment list --project <id> [--treatment <blackbox|whitebox>]
 ```
 
 ## Traversal
 
 ```
-benkyo window --project <id>                                # all in-window nodes + edges; procedural concepts are terminals
+benkyo window --project <id>                                # all in-window nodes + edges; blackbox concepts are terminals
 benkyo breakdown --project <id> --node <id>                 # direct prereq dependencies of node, each annotated with treatment
-benkyo frontier --project <id>                              # procedural concepts within window (promotion candidates)
+benkyo frontier --project <id>                              # blackbox concepts within window (promotion candidates)
 benkyo ancestors --project <id> --node <id>                 # nodes that depend on this node, within window
 ```
 
@@ -77,7 +82,7 @@ benkyo render --project <id> --format <mermaid|dot> [--output <path>]
 
 - Default format: mermaid (embeddable in markdown).
 - Without `--output`: raw text on stdout (pipe-friendly: `... --format dot | dot -Tpng > graph.png`).
-- Shape conventions: problem = stadium, conceptual = rectangle, procedural = cylinder.
+- Shape conventions: problem = stadium, whitebox = rectangle, blackbox = cylinder.
 
 ## Events (append-only log of state changes)
 
@@ -121,7 +126,7 @@ Summary JSON shape (all keys optional):
 ```json
 {
   "completed_problems": ["p1", "p3"],
-  "treatment_changes": [{"concept_id": "c5", "from": "procedural", "to": "conceptual"}],
+  "treatment_changes": [{"concept_id": "c5", "from": "blackbox", "to": "whitebox"}],
   "pending": ["c4 mid-derivation"],
   "delayed_jols": [
     {"concept_id": "c1", "claim": "high"},
@@ -172,27 +177,27 @@ benkyo concept find --content "Laplace transform"    # check for duplicates firs
 benkyo concept add --content "Laplace transform: ..."
 ```
 
-### Set procedural treatment with a reference table
+### Set blackbox treatment with a reference table
 
 ```
 benkyo treatment set \
   --project prj1 --concept c5 \
-  --treatment procedural \
+  --treatment blackbox \
   --reference-file laplace-table.md
 ```
 
-### Commit (procedural → conceptual)
+### Commit (blackbox → whitebox)
 
 ```
 benkyo treatment unset --project prj1 --concept c5
-# then ensure prereqs of c5 exist; add them as procedural if missing
+# then ensure prereqs of c5 exist; add them as blackbox if missing
 ```
 
-### Release (conceptual → procedural)
+### Release (whitebox → blackbox)
 
 ```
 benkyo treatment set --project prj1 --concept c5 \
-  --treatment procedural --reference "<reference text>"
+  --treatment blackbox --reference "<reference text>"
 ```
 
 ### Inspect a project's state

@@ -65,7 +65,7 @@ The recovered JOL claims are *priors* — they tell you what to probe first and 
 {
   "completed_problems": ["p5"],
   "treatment_changes": [
-    {"concept_id": "c4", "from": "procedural", "to": "conceptual"}
+    {"concept_id": "c4", "from": "blackbox", "to": "whitebox"}
   ],
   "pending": ["c5 (Bromwich 積分 breakdown 未着手)"],
   "delayed_jols": [
@@ -90,7 +90,7 @@ Learner: ラプラス変換は自信あり、留数はまあまあ、Cauchy 積�
 Tutor (internal: prepare summary JSON, then session end):
   {
     "completed_problems": ["p5"],
-    "treatment_changes": [{"concept_id": "c4", "from": "procedural", "to": "conceptual"}],
+    "treatment_changes": [{"concept_id": "c4", "from": "blackbox", "to": "whitebox"}],
     "pending": ["c5 (Bromwich 積分が未着手)"],
     "delayed_jols": [
       {"concept_id": "c1", "claim": "high"},

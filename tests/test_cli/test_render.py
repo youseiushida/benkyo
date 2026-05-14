@@ -48,7 +48,7 @@ def test_render_to_file(invoke, tmp_path):
     assert "graph TD" in out.read_text(encoding="utf-8")
 
 
-def test_render_procedural_marker(invoke):
+def test_render_blackbox_marker(invoke):
     _setup_project(invoke)
     invoke(
         "treatment",
@@ -58,14 +58,14 @@ def test_render_procedural_marker(invoke):
         "--concept",
         "c2",
         "--treatment",
-        "procedural",
+        "blackbox",
         "--reference",
         "公式",
     )
     result = invoke("render", "--project", "prj1", "--format", "mermaid")
     # c2 が cylinder で出る
     assert "c2[(" in result.output
-    assert "procedural" in result.output
+    assert "blackbox" in result.output
 
 
 def test_render_pipeable_to_dot(invoke):

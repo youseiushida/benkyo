@@ -5,21 +5,21 @@
       "id": 1,
       "name": "explicit-commit-request",
       "prompt": "部分分数分解, ちゃんと理解したい。なんで分けられるのかも含めて。",
-      "expected_output": "直接的な commit signal。tutor は (a) 学習者の意図を簡潔に確認 ('時間と集中力ある？'), (b) 部分分数分解 (c6) の prereq を benkyo breakdown で確認, (c) 既存 prereq が conceptual に揃っているか, prereq node が欠けていないか確認, (d) 必要なら新 prereq node を procedural として追加 (1 階層のみ), (e) benkyo treatment unset で c6 を conceptual に, (f) `benkyo events add --kind treatment_changed --project prj1 --payload '{\"concept_id\":\"c6\",\"from\":\"procedural\",\"to\":\"conceptual\"}'` で event 記録, (g) 学習者には '掘り下げる' / '理屈見る' のような natural language で伝え, 'commit' や 'treatment' や 'event' は使わない。",
+      "expected_output": "直接的な commit signal。tutor は (a) 学習者の意図を簡潔に確認 ('時間と集中力ある？'), (b) 部分分数分解 (c6) の prereq を benkyo breakdown で確認, (c) 既存 prereq が whitebox に揃っているか, prereq node が欠けていないか確認, (d) 必要なら新 prereq node を blackbox として追加 (1 階層のみ), (e) benkyo treatment unset で c6 を whitebox に, (f) `benkyo events add --kind treatment_changed --project prj1 --payload '{\"concept_id\":\"c6\",\"from\":\"blackbox\",\"to\":\"whitebox\"}'` で event 記録, (g) 学習者には '掘り下げる' / '理屈見る' のような natural language で伝え, 'commit' や 'treatment' や 'event' は使わない。",
       "files": []
     },
     {
       "id": 2,
       "name": "indirect-release-fatigue",
       "prompt": "Bromwich 積分の breakdown 3 回目だけど, まだ詰まる。複素関数の経路積分とか, 今やってる ODE 解きから遠いし...",
-      "expected_output": "間接的 release signal (繰り返し breakdown 失敗 + 疲労 + goal から遠い)。tutor は (a) 自動切替せず, 学習者に明示的に release を提案 ('一旦この公式を使う形に切り替えて先に進む？後で気持ちに余裕できたら戻ってきても良い'), (b) 学習者の同意を取って procedural に release, (c) reference content を準備 (公式集), (d) `benkyo events add --kind treatment_changed` で event 記録, (e) goal に戻る。'release', 'treatment', 'procedural', 'event', 'record' などの語は使わない。",
+      "expected_output": "間接的 release signal (繰り返し breakdown 失敗 + 疲労 + goal から遠い)。tutor は (a) 自動切替せず, 学習者に明示的に release を提案 ('一旦この公式を使う形に切り替えて先に進む？後で気持ちに余裕できたら戻ってきても良い'), (b) 学習者の同意を取って blackbox に release, (c) reference content を準備 (公式集), (d) `benkyo events add --kind treatment_changed` で event 記録, (e) goal に戻る。'release', 'treatment', 'blackbox', 'event', 'record' などの語は使わない。",
       "files": []
     },
     {
       "id": 3,
       "name": "commit-without-prereqs",
       "prompt": "ラプラス変換の定義のところ, 積分の収束域とか Re(s) > a の意味も含めてちゃんと理解したい",
-      "expected_output": "commit リクエストだが prereq の整備が必要なケース。tutor は (a) ラプラス変換の定義 (c1) を conceptual 化したい要望を受け止め, (b) prereq (広義積分, 複素数の実部, 積分の収束判定) が既存 graph にあるか確認, (c) ない物は add (concept add) + 関連 edge を追加, (d) 新規 prereq はデフォルト procedural + 簡潔な reference, (e) その後 treatment unset で c1 を conceptual に, (f) 学習者には透明に '進める前提として広義積分とか出てくるけど, それぞれ公式が使えれば一旦 OK として進めるね' と説明。",
+      "expected_output": "commit リクエストだが prereq の整備が必要なケース。tutor は (a) ラプラス変換の定義 (c1) を whitebox 化したい要望を受け止め, (b) prereq (広義積分, 複素数の実部, 積分の収束判定) が既存 graph にあるか確認, (c) ない物は add (concept add) + 関連 edge を追加, (d) 新規 prereq はデフォルト blackbox + 簡潔な reference, (e) その後 treatment unset で c1 を whitebox に, (f) 学習者には透明に '進める前提として広義積分とか出てくるけど, それぞれ公式が使えれば一旦 OK として進めるね' と説明。",
       "files": []
     }
   ]

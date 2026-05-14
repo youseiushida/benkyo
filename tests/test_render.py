@@ -16,13 +16,13 @@ def _sample_window():
                 "id": "c1",
                 "type": "concept",
                 "content": "RLC回路の微分方程式",
-                "treatment": "conceptual",
+                "treatment": "whitebox",
             },
             {
                 "id": "c2",
                 "type": "concept",
                 "content": "ラプラス変換",
-                "treatment": "procedural",
+                "treatment": "blackbox",
                 "reference_content": "変換表",
             },
         ],
@@ -50,9 +50,9 @@ class TestDot:
         for nid in ("p1", "c1", "c2"):
             assert f'"{nid}"' in dot
 
-    def test_procedural_has_marker(self):
+    def test_blackbox_has_marker(self):
         dot = render.to_dot(_sample_window())
-        assert "[procedural]" in dot
+        assert "[blackbox]" in dot
 
     def test_problem_label_is_statement(self):
         dot = render.to_dot(_sample_window())
@@ -74,7 +74,7 @@ class TestDot:
                     "id": "c1",
                     "type": "concept",
                     "content": 'quote "in content"',
-                    "treatment": "conceptual",
+                    "treatment": "whitebox",
                 }
             ],
             "edges": [],
@@ -102,11 +102,11 @@ class TestMermaid:
         mm = render.to_mermaid(_sample_window())
         assert "p1([" in mm
 
-    def test_conceptual_uses_rectangle(self):
+    def test_whitebox_uses_rectangle(self):
         mm = render.to_mermaid(_sample_window())
         assert "c1[" in mm and "c1[(" not in mm
 
-    def test_procedural_uses_cylinder(self):
+    def test_blackbox_uses_cylinder(self):
         mm = render.to_mermaid(_sample_window())
         assert "c2[(" in mm
 
@@ -129,7 +129,7 @@ class TestMermaid:
                     "id": "c1",
                     "type": "concept",
                     "content": 'has "quotes"',
-                    "treatment": "conceptual",
+                    "treatment": "whitebox",
                 }
             ],
             "edges": [],

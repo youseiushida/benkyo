@@ -1,0 +1,24 @@
+{
+  "name": "benkyo",
+  "version": "0.3.0",
+  "description": "Research-grounded tutor: a SKILL.md bundle that turns Codex into a problem-driven learning tutor with persistent memory (concept-dependency graph, blackbox/whitebox treatments, append-only events log). Requires the benkyo CLI installed separately (uv tool install benkyo).",
+  "author": {
+    "name": "Yosei Ushida"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/youseiushida/benkyo",
+  "repository": "https://github.com/youseiushida/benkyo",
+  "keywords": [
+    "learning",
+    "tutoring",
+    "education",
+    "knowledge-graph",
+    "spaced-repetition"
+  ],
+  "skills": "./.claude/skills/",
+  "interface": {
+    "displayName": "benkyo",
+    "shortDescription": "Research-grounded tutor with persistent memory",
+    "category": "Education"
+  }
+}

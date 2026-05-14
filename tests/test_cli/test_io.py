@@ -58,7 +58,7 @@ def test_export_import_project_roundtrip(invoke, tmp_path):
     invoke(
         "treatment", "set",
         "--project", "prj1", "--concept", "c1",
-        "--treatment", "procedural",
+        "--treatment", "blackbox",
         "--reference", "公式",
     )
 

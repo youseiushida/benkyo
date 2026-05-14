@@ -6,26 +6,46 @@
 
 **A research-grounded tutor that defers to you, not to its training data.**
 
-A Claude Code plugin and Python CLI that turn Claude into a tutor with persistent memory — tracking, per project, which concepts you want to truly understand and which you've decided to just use as a tool. Each operational rule cites the cognitive science it's built on.
+A Python CLI plus a SKILL.md bundle that turn an AI coding agent — Claude Code today, OpenAI Codex CLI with one symlink, anything else that consumes the open [Agent Skills](https://agentskills.io/) format — into a tutor with persistent memory. The agent tracks, per project, which concepts you want to truly understand and which you've decided to just use as a tool. Each operational rule cites the cognitive science it's built on.
 
-**Status**: β. CLI in English, skills in Japanese.
+**Status**: β. CLI in English. SKILL.md files are in English with Japanese-first natural-language examples (the agent adapts to the learner's language at runtime; English / other-language end-to-end use works in principle but is not yet evaluated). First-class plugin support is for Claude Code; Codex CLI works via manual install (see below).
 
-> **Terminology.** A *project* in benkyo is a **learning unit** — one subject (e.g., Laplace transforms) bundled with the goal problems that anchor it and the per-concept treatment decisions for that subject. The cardinal-vocabulary rule in the skills (see `.claude/skills/`) translates this to natural Japanese (e.g., 「計画」) so the learner never sees the internal term.
+> **Terminology.** A *project* in benkyo is a **learning unit** — one subject (e.g., Laplace transforms) bundled with the goal problems that anchor it and the per-concept treatment decisions for that subject. Each concept has a per-project **treatment**: *whitebox* (understand the why, including derivations) or *blackbox* (use as a tool, formula in / answer out). The cardinal-vocabulary rule in the skills (see `.claude/skills/`) translates these into the learner's natural language — the internal terms never appear in tutor speech. The current example translations are Japanese-first.
+>
+> **Note on the math-education literature**: papers we cite (Sinha & Kapur 2021; Hiebert & Lefevre 1986) call these *conceptual* and *procedural* knowledge respectively. benkyo renamed in v0.3.0 to avoid the unrelated ACT-R use of "procedural" (= automated expert knowledge), which is the opposite axis from what those papers mean. The mapping is one-to-one: paper's "conceptual" = benkyo's "whitebox"; paper's "procedural" = benkyo's "blackbox".
 
 ## Get started
 
 ### 1. Install the CLI and the skills
 
-```bash
-# Python CLI
-uv tool install benkyo            # or: pipx install benkyo
+The Python CLI is the same for every agent:
 
-# Claude Code skills (5-skill bundle)
+```bash
+uv tool install benkyo            # or: pipx install benkyo
+benkyo --version                  # confirm it's on PATH
+```
+
+Then install the skills for your agent of choice:
+
+**Claude Code** (first-class plugin support):
+
+```bash
 /plugin marketplace add youseiushida/benkyo
 /plugin install benkyo
 ```
 
-Restart Claude Code. Confirm `benkyo --version` works and the 5 skills appear in `/help`.
+Restart Claude Code; the 5 skills appear in `/help`.
+
+**OpenAI Codex CLI** (first-class plugin marketplace; the repo ships `.codex-plugin/plugin.json` + `.agents/plugins/marketplace.json`):
+
+```bash
+codex plugin marketplace add youseiushida/benkyo
+# Then in the Codex TUI: open the plugin directory, find "benkyo", install.
+```
+
+The same `SKILL.md` files are picked up by both agents (the repo carries `.claude-plugin/marketplace.json` for Claude Code and `.codex-plugin/plugin.json` for Codex, both pointing at the shared `.claude/skills/` tree — they coexist without conflict). Codex's central Plugin Directory listing is coming soon; until then, `codex plugin marketplace add` from this repo is the supported flow.
+
+**Other SKILL.md-compatible agents** (Cursor, VS Code Copilot, Gemini CLI, ...): the frontmatter and body are agent-neutral. Point your agent's skill loader at `.claude/skills/benkyo-*` (or copy/symlink them into its skills directory). The bundle uses the open Agent Skills format.
 
 ### 2. Hand your materials to Claude Code (or Codex CLI, or any agentic CLI)
 
@@ -67,7 +87,7 @@ The 5 skills auto-trigger from what you say or what you do. You never type `benk
 
 - "I don't get this" → `benkyo-tutoring` drops into a one-level breakdown of the concept, then climbs back up
 - "I want to really understand X" → `benkyo-treatment-shift` commits the concept, makes sure the prerequisites exist as nodes, and switches to Problem-Solving-then-Instruction mode
-- "Just give me the formula" → `benkyo-treatment-shift` releases it back to procedural with a reference table
+- "Just give me the formula" → `benkyo-treatment-shift` releases it back to blackbox with a reference table
 - "Add convolution to the graph" → `benkyo-graph-edit` runs an identity check, then adds the node and edges
 - "I'm done for today" → `benkyo-session-wrap` recaps, captures a delayed JOL, and atomically persists the session so next time picks up cleanly
 
@@ -75,8 +95,8 @@ The 5 skills auto-trigger from what you say or what you do. You never type `benk
 
 Two pieces that depend on each other:
 
-1. **`benkyo` CLI** — a small Python tool (Click + SQLite + platformdirs) that owns a global concept-dependency graph plus, per project, the procedural/conceptual treatment of each concept, the goal problems, an append-only events log (delayed JOL, hypercorrection, treatment changes, session boundaries), and free-text project metadata.
-2. **5 Claude Code skills** — operational playbooks under `.claude/skills/` that tell Claude when and how to drive the CLI on the learner's behalf. The learner converses naturally; Claude translates intents into CLI ops and applies decision rules drawn from published meta-analyses.
+1. **`benkyo` CLI** — a small Python tool (Click + SQLite + platformdirs) that owns a global concept-dependency graph plus, per project, the blackbox/whitebox treatment of each concept, the goal problems, an append-only events log (delayed JOL, hypercorrection, treatment changes, session boundaries), and free-text project metadata.
+2. **5 Agent Skills** — operational playbooks (`SKILL.md` files under `.claude/skills/`) that tell the agent when and how to drive the CLI on the learner's behalf. The learner converses naturally; the agent translates intents into CLI ops and applies decision rules drawn from published meta-analyses. The files use the open Agent Skills format, so they work in any compatible agent (Claude Code natively, Codex CLI / Cursor / Gemini CLI / VS Code Copilot via the manual install above).
 
 The learner never types `benkyo` themselves.
 
@@ -97,7 +117,7 @@ benkyo addresses these by making the *structural* parts persistent (the CLI) and
 
 | Skill | Triggers on | What it does |
 |---|---|---|
-| `benkyo-project-init` | "○○を勉強したい" / "I want to study X", new subject, materials shared, post-long-gap resume | Extracts goal, drafts initial graph, sets the initial procedural/conceptual cut |
+| `benkyo-project-init` | "○○を勉強したい" / "I want to study X", new subject, materials shared, post-long-gap resume | Extracts goal, drafts initial graph, sets the initial blackbox/whitebox cut |
 | `benkyo-tutoring` | Mid-session activity ("分からない" / "I don't get it", "教えて" / "explain", "次" / "next", "分かった" / "got it") | The default in-session behavior: PS-I vs I-PS mode choice, breakdown protocol, self-eval handling |
 | `benkyo-treatment-shift` | "ちゃんと理解したい" / "I want to really understand" (commit), "公式で OK" / "just memorize the formula" (release), or detected fatigue / transfer-failure signals | Changes a concept's depth-of-engagement; ensures prereqs exist before committing |
 | `benkyo-graph-edit` | "これも追加" / "add this too", "これ別物" / "this is different", or a concept the learner mentions that isn't in the graph yet | Adds nodes/edges with an identity check; granularity decisions |
@@ -125,10 +145,10 @@ Domain model in the DB (simplified):
 - `problem_nodes` (`p1`, `p2`, …) — also global
 - `edges` — `prereq` or `related`, between nodes
 - `projects` (`prj1`, …) — owns goal problems, treatments, free-text metadata
-- `project_concepts` — per-project treatment (`procedural` / `conceptual` / unset → default conceptual)
+- `project_concepts` — per-project treatment (`blackbox` / `whitebox` / unset → default whitebox)
 - `events` (`e1`, …) — append-only log of state changes (`session_start`, `session_end`, `delayed_jol_recorded`, `hypercorrection_detected`, `treatment_changed`, `concept_probed`) with a free-text `notes` column for context that doesn't fit a payload schema
 
-The "window" of a project is computed by BFS from goal problems via prereq edges; concepts marked procedural terminate traversal (they bound the depth the tutor needs to teach).
+The "window" of a project is computed by BFS from goal problems via prereq edges; concepts marked blackbox terminate traversal (they bound the depth the tutor needs to teach).
 
 The full CLI surface is documented at `.claude/skills/_benkyo-shared/references/cli-cheatsheet.md` — or just run `benkyo --help` / `benkyo schema`.
 
@@ -138,7 +158,7 @@ Each operational rule in the skills is backed by a published effect. The table b
 
 | Operational rule | Primary source |
 |---|---|
-| Default PS-I for conceptual concepts; default I-PS for procedural | Sinha & Kapur (2021) |
+| Default PS-I for whitebox concepts; default I-PS for blackbox | Sinha & Kapur (2021) |
 | Build instruction on the learner's own attempt, not on the canonical solution | Sinha & Kapur (2021): PS-I with instruction-building g = 0.56 vs without g = 0.20 (subgroup p = .02) |
 | Reduce scaffolding as the learner becomes fluent | Kalyuga (2007), expertise reversal |
 | Rapid first-step diagnostic instead of long pre-tests | Kalyuga (2007), correlations up to r = 0.92 with full tests |
@@ -155,14 +175,15 @@ Each operational rule in the skills is backed by a published effect. The table b
 
 - **No probabilistic learner model**: benkyo deliberately stops at "events are queryable." It does **not** compute `P(mastered)` (BKT) or schedule reviews by a forgetting model (FSRS). Skills query the events log with simple heuristics. If you want a model, build it as a separate layer on top of the events log — that's the right boundary.
 - **Self-managed scheduling**: spacing recommendations come from session-wrap and project-init heuristics, not from a per-card forgetting model. The 1–6 day Adesope window is a hint to the learner, not a queue.
-- **Japanese-first skills**: the SKILL.md files and decision tables are currently written in Japanese (the primary user language). The CLI itself is English. Translation contributions welcome.
+- **Japanese-first natural-language layer (skills are language-neutral in principle)**: the `SKILL.md` files themselves are written in English (so any agent can read the instructions), but the cardinal-vocabulary translation examples, the eval prompts, and the trigger phrases listed in the skill descriptions are Japanese-first. Claude / Codex adapt to the learner's language at runtime, so English-speaking learners can use benkyo today — the agent will translate internal terms into natural English on the fly — but only Japanese end-to-end behavior has been evaluated. Localized example sets are a welcome contribution.
 - **Two-layer brittleness**: if the CLI changes its surface and the skill's cheat-sheet isn't updated, the skill's `benkyo` invocations will fail. Run the test suite + the skill evals together on changes. `benkyo schema` lets skills introspect the live CLI shape.
+- **Cross-agent behavior unverified end-to-end**: the 18 single-turn evals were re-run only in Claude Code. The Codex CLI install path (`codex plugin marketplace add` against this repo) is wired up via `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json` but has not been load-tested in a real Codex session. Cursor / Gemini / VS Code Copilot work in principle (the SKILL.md format is portable) but are also unverified. PRs confirming or fixing cross-agent behavior welcome.
 
 ## Development
 
 ```bash
 uv sync --dev
-uv run pytest                       # 179 tests
+uv run pytest                       # 182 tests
 benkyo --help
 benkyo schema                       # JSON tree of the full CLI surface
 ```

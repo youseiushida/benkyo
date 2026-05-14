@@ -15,7 +15,7 @@ from benkyo.ids import (
 )
 
 VALID_EDGE_TYPES = ("prereq", "related")
-VALID_TREATMENTS = ("procedural", "conceptual")
+VALID_TREATMENTS = ("blackbox", "whitebox")
 VALID_SET_BY = ("system", "learner", "material")
 
 # Known event kinds. The column is intentionally not CHECK-constrained so that
@@ -652,8 +652,8 @@ def set_treatment(
     ).fetchone() is None:
         raise NotFoundError(f"concept not found: {concept_id}")
 
-    # null out reference_content for conceptual treatment to avoid confusion
-    ref = reference_content if treatment == "procedural" else None
+    # null out reference_content for whitebox treatment to avoid confusion
+    ref = reference_content if treatment == "blackbox" else None
 
     conn.execute(
         """
@@ -673,7 +673,7 @@ def set_treatment(
 def get_treatment(
     conn: sqlite3.Connection, project_id: str, concept_id: str
 ) -> dict[str, Any]:
-    """Get treatment. If unset, return 'conceptual' with default=True."""
+    """Get treatment. If unset, return 'whitebox' with default=True."""
     if conn.execute(
         "SELECT 1 FROM projects WHERE id = ?", (project_id,)
     ).fetchone() is None:
@@ -691,7 +691,7 @@ def get_treatment(
         return {
             "project_id": project_id,
             "concept_id": concept_id,
-            "treatment": "conceptual",
+            "treatment": "whitebox",
             "reference_content": None,
             "set_by": None,
             "set_at": None,
@@ -968,7 +968,7 @@ def fork_concept(
 ) -> dict[str, Any]:
     """Create a new concept whose edges mirror those of source.
 
-    Treatments are NOT copied — the new concept starts with default (conceptual)
+    Treatments are NOT copied — the new concept starts with default (whitebox)
     in every project. This is intentional: treatments are project-specific
     judgments that should be re-considered after a split.
 

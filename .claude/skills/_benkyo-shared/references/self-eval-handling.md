@@ -36,7 +36,7 @@ When the learner attempts a problem, classify by their confidence + the outcome:
 
 |  | Correct | Wrong |
 |---|---|---|
-| **High confidence** | Verify process briefly. Consider release if procedural-eligible. | **HYPERCORRECTION moment** — Butterfield & Metcalfe: highest learning value. Explicit contrasting correction + re-probe later. |
+| **High confidence** | Verify process briefly. Consider release if blackbox-eligible. | **HYPERCORRECTION moment** — Butterfield & Metcalfe: highest learning value. Explicit contrasting correction + re-probe later. |
 | **Low confidence** | Verify process. If genuine: reinforce. If accidental: more practice. | Standard PS-I correction. |
 
 ### Each cell elaborated
@@ -115,7 +115,7 @@ Tutor: 前回ラプラス変換は自信ありって言ってたよね。軽く�
   [TAP-aligned probe, 1 problem]
 ```
 
-- If solved: delayed JOL was accurate. Trust other claims similarly. Release procedural-eligible if appropriate.
+- If solved: delayed JOL was accurate. Trust other claims similarly. Release blackbox-eligible if appropriate.
 - If failed: stability bias caught — write a `hypercorrection_detected` event for the cross-session re-probe pipeline:
   ```
   benkyo events add --kind hypercorrection_detected \

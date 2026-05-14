@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS project_goals (
 CREATE TABLE IF NOT EXISTS project_concepts (
     project_id TEXT NOT NULL,
     concept_id TEXT NOT NULL,
-    treatment TEXT NOT NULL CHECK (treatment IN ('procedural', 'conceptual')),
+    treatment TEXT NOT NULL CHECK (treatment IN ('blackbox', 'whitebox')),
     reference_content TEXT,
     set_by TEXT NOT NULL DEFAULT 'learner'
         CHECK (set_by IN ('system', 'learner', 'material')),
@@ -81,14 +81,82 @@ CREATE TABLE IF NOT EXISTS id_counters (
 """
 
 
+def _migrate_v02_to_v03(conn: sqlite3.Connection) -> None:
+    """v0.2 → v0.3: rename treatment values procedural→blackbox, conceptual→whitebox.
+
+    Auto-detects an old `project_concepts` table by inspecting sqlite_master for
+    the old CHECK constraint, and rebuilds it with the new values + new CHECK.
+    Idempotent: a v0.3+ DB is left untouched.
+    """
+    row = conn.execute(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name='project_concepts'"
+    ).fetchone()
+    if row is None:
+        return  # fresh DB; SCHEMA will create the new table directly
+    sql = row[0] or ""
+    if "'procedural'" not in sql and "'conceptual'" not in sql:
+        return  # already on the new naming
+
+    conn.execute("BEGIN")
+    try:
+        conn.execute(
+            """
+            CREATE TABLE project_concepts_v03 (
+                project_id TEXT NOT NULL,
+                concept_id TEXT NOT NULL,
+                treatment TEXT NOT NULL CHECK (treatment IN ('blackbox', 'whitebox')),
+                reference_content TEXT,
+                set_by TEXT NOT NULL DEFAULT 'learner'
+                    CHECK (set_by IN ('system', 'learner', 'material')),
+                set_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (project_id, concept_id),
+                FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+                FOREIGN KEY (concept_id) REFERENCES concept_nodes(id) ON DELETE CASCADE
+            )
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO project_concepts_v03
+                (project_id, concept_id, treatment, reference_content, set_by, set_at)
+            SELECT
+                project_id,
+                concept_id,
+                CASE treatment
+                    WHEN 'procedural' THEN 'blackbox'
+                    WHEN 'conceptual' THEN 'whitebox'
+                    ELSE treatment
+                END,
+                reference_content, set_by, set_at
+            FROM project_concepts
+            """
+        )
+        conn.execute("DROP TABLE project_concepts")
+        conn.execute("ALTER TABLE project_concepts_v03 RENAME TO project_concepts")
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_project_concepts_concept "
+            "ON project_concepts(concept_id)"
+        )
+        conn.execute("COMMIT")
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+
+
 def connect(db_path: Path) -> sqlite3.Connection:
-    """Open a DB connection. Enables FK enforcement and initializes the schema."""
+    """Open a DB connection. Enables FK enforcement and initializes the schema.
+
+    Auto-runs the v0.2 → v0.3 treatment-value migration if it detects an old
+    schema. Migration is transparent and idempotent — already-migrated DBs and
+    fresh DBs are untouched.
+    """
     ensure_parent_dir(db_path)
     conn = sqlite3.connect(db_path, isolation_level=None)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 5000")
+    _migrate_v02_to_v03(conn)
     conn.executescript(SCHEMA)
     return conn
 

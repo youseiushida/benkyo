@@ -5,7 +5,7 @@
       "id": 1,
       "name": "stuck-on-concept-mid-session",
       "prompt": "ODE 解こうとしてラプラス使ってるんだけど、L{f'(t)} = sF(s) - f(0) の意味が分からない。なんで f(0) が出てくる？",
-      "expected_output": "概念で詰まったケース。tutor は (a) 詰まりの種別を判定 ('概念自体が不明' に分類), (b) 当該 concept の treatment を benkyo treatment get で確認, (c) conceptual なら breakdown 開始, (d) その concept の prereq に降りる (定義 = ラプラス変換の積分定義), (e) 部分積分や境界項から f(0) が出てくる構造を導出, (f) 元の問題に戻る。breakdown 中の各段階で anticipation を埋める。",
+      "expected_output": "概念で詰まったケース。tutor は (a) 詰まりの種別を判定 ('概念自体が不明' に分類), (b) 当該 concept の treatment を benkyo treatment get で確認, (c) whitebox なら breakdown 開始, (d) その concept の prereq に降りる (定義 = ラプラス変換の積分定義), (e) 部分積分や境界項から f(0) が出てくる構造を導出, (f) 元の問題に戻る。breakdown 中の各段階で anticipation を埋める。",
       "files": []
     },
     {

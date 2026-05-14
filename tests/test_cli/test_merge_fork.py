@@ -24,11 +24,11 @@ def test_concept_merge_conflict_error_exit_code(invoke):
     invoke("project", "create", "--metadata", "P")
     invoke(
         "treatment", "set", "--project", "prj1",
-        "--concept", "c1", "--treatment", "conceptual",
+        "--concept", "c1", "--treatment", "whitebox",
     )
     invoke(
         "treatment", "set", "--project", "prj1",
-        "--concept", "c2", "--treatment", "procedural",
+        "--concept", "c2", "--treatment", "blackbox",
     )
 
     # default --on-conflict=error → conflict (exit code 3)
@@ -44,11 +44,11 @@ def test_concept_merge_keep_canonical(invoke):
     invoke("project", "create", "--metadata", "P")
     invoke(
         "treatment", "set", "--project", "prj1",
-        "--concept", "c1", "--treatment", "conceptual",
+        "--concept", "c1", "--treatment", "whitebox",
     )
     invoke(
         "treatment", "set", "--project", "prj1",
-        "--concept", "c2", "--treatment", "procedural",
+        "--concept", "c2", "--treatment", "blackbox",
         "--reference", "ref",
     )
 
@@ -59,10 +59,10 @@ def test_concept_merge_keep_canonical(invoke):
     data = parse_ok(result)
     assert data["treatments_skipped"] == 1
 
-    # c1 still conceptual
+    # c1 still whitebox
     result = invoke("treatment", "get", "--project", "prj1", "--concept", "c1")
     t = parse_ok(result)
-    assert t["treatment"] == "conceptual"
+    assert t["treatment"] == "whitebox"
 
 
 def test_problem_merge_cli(invoke):

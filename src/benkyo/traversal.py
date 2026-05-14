@@ -50,7 +50,7 @@ def window(conn: sqlite3.Connection, project_id: str) -> dict[str, Any]:
     """Return the project's entire window.
 
     Traversal starts from the project's goals and follows prereq edges.
-    Procedural-treated concepts act as terminals (included in the result but
+    Blackbox-treated concepts act as terminals (included in the result but
     their outgoing edges are not followed).
     """
     project = repo.get_project(conn, project_id)
@@ -63,13 +63,13 @@ def window(conn: sqlite3.Connection, project_id: str) -> dict[str, Any]:
     while queue:
         current = queue.pop(0)
 
-        # procedural concepts are terminals
+        # blackbox concepts are terminals
         if current.startswith(CONCEPT_PREFIX):
             if current not in treatment_cache:
                 treatment_cache[current] = repo.get_treatment(
                     conn, project_id, current
                 )
-            if treatment_cache[current]["treatment"] == "procedural":
+            if treatment_cache[current]["treatment"] == "blackbox":
                 continue
 
         # follow outgoing prereq edges
@@ -133,12 +133,12 @@ def breakdown(
 
 
 def frontier(conn: sqlite3.Connection, project_id: str) -> list[dict[str, Any]]:
-    """List procedural-treated concepts within the window (= promotion candidates)."""
+    """List blackbox-treated concepts within the window (= promotion candidates)."""
     w = window(conn, project_id)
     return [
         node
         for node in w["nodes"]
-        if node["type"] == "concept" and node["treatment"] == "procedural"
+        if node["type"] == "concept" and node["treatment"] == "blackbox"
     ]
 
 

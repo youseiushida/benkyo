@@ -1,0 +1,22 @@
+{
+  "name": "benkyo-marketplace",
+  "interface": {
+    "displayName": "Benkyo",
+    "shortDescription": "Research-grounded tutoring skills + CLI for problem-driven learning"
+  },
+  "plugins": [
+    {
+      "name": "benkyo",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Education",
+      "description": "5-skill bundle (project-init, tutoring, treatment-shift, graph-edit, session-wrap) that turns Codex into a tutor with persistent memory. Requires the benkyo CLI separately."
+    }
+  ]
+}

@@ -45,7 +45,7 @@ benkyo concept find --content "<exact or near-exact name>"
 If matches exist, evaluate:
 - Same concept? → reuse the existing id; don't add
 - Different but related? → add the new one, then add a `related` edge if the relationship is real
-- Genuinely the same content but worded differently? → consider `concept merge` (when implemented) or just reuse
+- Genuinely the same content but worded differently? → `concept merge <source> --into <canonical>` (see "Merge protocol" below)
 
 ## Granularity: the core decision
 
@@ -53,7 +53,7 @@ Granularity is the most consequential editing decision. The full rules are in `.
 
 A concept node should satisfy these 5 criteria:
 
-1. **Single treatment unit**: it can be assigned procedural or conceptual as a whole.
+1. **Single treatment unit**: it can be assigned blackbox or whitebox as a whole.
 2. **Uniform prereqs**: its sub-aspects need similar prereqs.
 3. **Aligned with textbook/course chunking**: roughly section-level granularity.
 4. **Reusable**: it appears as a prereq of multiple parents (otherwise absorb into parent).
@@ -69,7 +69,7 @@ Violations:
 
 **Lazy refinement principle**: start with section-level granularity. Split only when an actual use case demands finer treatment. Don't pre-split "just in case".
 
-**Cross-project rule**: the global graph supports the FINEST granularity that any project needs. Coarser-use projects aggregate by marking groups of fine nodes as procedural.
+**Cross-project rule**: the global graph supports the FINEST granularity that any project needs. Coarser-use projects aggregate by marking groups of fine nodes as blackbox.
 
 ## Edges: prereq vs related
 
@@ -179,7 +179,7 @@ Example:
 i(t) = (1/Lω_d) e^(-ζω₀t) sin(ω_d t) ≈ 0.0365 e^(-50t) sin(273.9 t) [A]
 ```
 
-### Reference content for procedural concepts (200-1000 chars)
+### Reference content for blackbox concepts (200-1000 chars)
 
 See `benkyo-treatment-shift` skill for the standards. Tables, formulas, recipes — not exposition.
 
@@ -197,9 +197,9 @@ benkyo concept add --content "<name>: <1-3 sentence definition>"
 # Step 3: add prereq edges if any
 benkyo edge add --from <new_id> --to <prereq_id> --type prereq
 
-# Step 4: if treatment in current project is non-default (procedural), set it
+# Step 4: if treatment in current project is non-default (blackbox), set it
 benkyo treatment set --project <prj_id> --concept <new_id> \
-  --treatment procedural --reference "<content>"
+  --treatment blackbox --reference "<content>"
 ```
 
 ### Adding a new problem
@@ -225,25 +225,55 @@ benkyo project update <prj_id> --goals <p1,p2,...,new_problem_id>
 benkyo edge delete --from <id1> --to <id2> --type <prereq|related>
 ```
 
-### Identifying duplicates to merge
+### Merge protocol (collapse a duplicate concept)
+
+Trigger: `concept find` / `concept list --query` surfaces two concepts that are clearly the same content with different wording, or the learner says 「これとこれ同じ」.
+
+Atomic command (CLI handles edge + project_concepts redirection in one transaction):
 
 ```
-benkyo concept list --query "<part of name>"
-# inspect results, decide if any pair is truly the same
-# (merge command pending implementation; meanwhile, manually redirect edges then delete)
+benkyo concept merge <source_id> --into <canonical_id> \
+    [--on-conflict error|keep_canonical|keep_source]
 ```
 
-### Splitting a node (manually, before fork command)
+Behavior:
+- All edges touching `source_id` are redirected to `canonical_id` (self-loops and duplicates auto-skipped).
+- All `project_concepts` (treatment) rows on `source_id` are merged onto `canonical_id`.
+- If a project has treatments on *both* source and canonical, `--on-conflict` decides:
+  - `error` (default): refuse the merge, surface both rows for human review
+  - `keep_canonical`: drop source's treatment, keep canonical's
+  - `keep_source`: replace canonical's treatment with source's
+- After the merge, `source_id` no longer exists in the DB.
 
-Currently no atomic split. Procedure:
+Pick canonical: prefer the older / better-named one. If unsure, ask the learner ("『微分の変換則』と『微分公式 (ラプラス)』、どっちの名前で残す？" — surface the content, not the IDs).
 
-1. Create the new "split-off" concept(s) with `concept add`.
-2. Identify which edges of the original should move to which split.
-3. For each edge to move: `edge delete` old + `edge add` new direction.
-4. Similarly for project_concepts (treatments): unset on original, set on splits.
-5. When done, decide whether to keep, edit, or delete the original.
+For `problem` duplicates, the same shape: `benkyo problem merge <source_id> --into <canonical_id>` (problems don't have treatments, so no `--on-conflict` flag).
 
-This is tedious; merge/fork commands are planned. For now, this is the manual flow.
+### Fork protocol (split a node into two)
+
+Trigger: the granularity-5 criteria (above) indicate split is warranted, or the learner says 「これは細かく分けたい」/「これは別物として扱いたい」.
+
+Atomic command (CLI copies edges but **not** treatments — see below for why):
+
+```
+benkyo concept fork <source_id> --content <new content for the split-off>
+# or --content-file <path>
+```
+
+Behavior:
+- A new concept is created with the given content.
+- All edges touching `source_id` are *copied* to the new concept (both directions).
+- `project_concepts` (treatments) are **NOT copied**. The new node starts with default whitebox in every project.
+
+Why treatments are not copied: a split is exactly the moment to *re-decide* treatment per project — that's usually the reason to split in the first place. Copying would mask the decision the learner is implicitly inviting.
+
+After `fork`, manually:
+1. On the **source** concept (the residual), remove the edges that now belong only to the split-off. `edge delete --from <source> --to <X>` for each.
+2. On the **fork** (the new one), remove the edges that should *only* be on the source (the CLI copied everything). Same pattern.
+3. In each project where this matters, set the treatments on both via `treatment set`.
+4. Update the `content` of the source if its new scope no longer matches the old text: `concept update <source> --content <text>`.
+
+(The asymmetric "fork copies edges but you trim afterwards" design is intentional — it matches the natural workflow of "split, then decide what belongs where".)
 
 ## Vocabulary discipline
 
@@ -270,8 +300,8 @@ The learner might say:
 
 - 「これとあれは関連してる」 → consider adding `related` edge after checking
 - 「これは別物」 → check the offending edge; delete if wrong
-- 「これは細かく分けたい」 → consider split (use manual procedure for now)
-- 「これとこれ同じ」 → consider merge (manual redirect for now)
+- 「これは細かく分けたい」 / 「これは別物として扱いたい」 → run granularity 5-criteria check; if split is warranted, `concept fork` then trim edges (see "Fork protocol" above)
+- 「これとこれ同じ」 / 「これとこれまとめて」 → run `concept find` to confirm duplication; if confirmed, `concept merge <source> --into <canonical>` (see "Merge protocol" above)
 
 Always confirm intent before executing. Sometimes the learner's structural intuition is correct; sometimes it's based on a misunderstanding.
 

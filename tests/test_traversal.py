@@ -28,32 +28,32 @@ def simple_project(conn):
 
 
 class TestWindow:
-    def test_all_conceptual_full_chain(self, simple_project):
+    def test_all_whitebox_full_chain(self, simple_project):
         sp = simple_project
         w = traversal.window(sp["conn"], sp["project_id"])
         node_ids = {n["id"] for n in w["nodes"]}
         assert node_ids == {sp["p1"], sp["c1"], sp["c2"], sp["c3"]}
         assert w["edge_count"] == 3
 
-    def test_procedural_terminates(self, simple_project):
+    def test_blackbox_terminates(self, simple_project):
         sp = simple_project
-        # mark c2 as procedural → traversal stops, c3 is excluded
+        # mark c2 as blackbox → traversal stops, c3 is excluded
         repo.set_treatment(
-            sp["conn"], sp["project_id"], sp["c2"], "procedural", "ref"
+            sp["conn"], sp["project_id"], sp["c2"], "blackbox", "ref"
         )
         w = traversal.window(sp["conn"], sp["project_id"])
         node_ids = {n["id"] for n in w["nodes"]}
         assert sp["c3"] not in node_ids
         assert sp["c2"] in node_ids  # c2 は含まれる (終端として)
 
-    def test_procedural_concept_has_reference(self, simple_project):
+    def test_blackbox_concept_has_reference(self, simple_project):
         sp = simple_project
         repo.set_treatment(
-            sp["conn"], sp["project_id"], sp["c2"], "procedural", "公式表"
+            sp["conn"], sp["project_id"], sp["c2"], "blackbox", "公式表"
         )
         w = traversal.window(sp["conn"], sp["project_id"])
         c2_node = next(n for n in w["nodes"] if n["id"] == sp["c2"])
-        assert c2_node["treatment"] == "procedural"
+        assert c2_node["treatment"] == "blackbox"
         assert c2_node["reference_content"] == "公式表"
 
     def test_empty_goals(self, conn):
@@ -82,28 +82,28 @@ class TestBreakdown:
         assert len(items) == 1
         assert items[0]["id"] == sp["c1"]
 
-    def test_breakdown_at_procedural(self, simple_project):
+    def test_breakdown_at_blackbox(self, simple_project):
         sp = simple_project
         repo.set_treatment(
-            sp["conn"], sp["project_id"], sp["c2"], "procedural", "ref"
+            sp["conn"], sp["project_id"], sp["c2"], "blackbox", "ref"
         )
         items = traversal.breakdown(sp["conn"], sp["project_id"], sp["c1"])
         assert len(items) == 1
-        # c2 が表示され, treatment は procedural
-        assert items[0]["treatment"] == "procedural"
+        # c2 が表示され, treatment は blackbox
+        assert items[0]["treatment"] == "blackbox"
         assert items[0]["reference_content"] == "ref"
 
 
 class TestFrontier:
-    def test_empty_when_all_conceptual(self, simple_project):
+    def test_empty_when_all_whitebox(self, simple_project):
         sp = simple_project
         items = traversal.frontier(sp["conn"], sp["project_id"])
         assert items == []
 
-    def test_lists_procedural_in_window(self, simple_project):
+    def test_lists_blackbox_in_window(self, simple_project):
         sp = simple_project
         repo.set_treatment(
-            sp["conn"], sp["project_id"], sp["c2"], "procedural", "ref"
+            sp["conn"], sp["project_id"], sp["c2"], "blackbox", "ref"
         )
         items = traversal.frontier(sp["conn"], sp["project_id"])
         ids = {i["id"] for i in items}

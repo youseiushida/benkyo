@@ -12,7 +12,7 @@ The end of a session is where most of the persistent state for future sessions g
 At wrap time the temptation is highest to "summarize technically". Resist. Recap accomplishments in natural language only.
 
 Never say:
-- 「treatment を 3 つ procedural に設定しました」
+- 「treatment を 3 つ blackbox に設定しました」
 - 「concept c5 を commit しました」
 - 「session_end イベントを書きました」
 - 「session note を project.metadata に追記しました」
@@ -103,7 +103,7 @@ Compose the summary JSON in memory (use a temp file or `--summary -` from stdin)
 {
   "completed_problems": ["p1", "p3"],
   "treatment_changes": [
-    {"concept_id": "c5", "from": "procedural", "to": "conceptual"}
+    {"concept_id": "c5", "from": "blackbox", "to": "whitebox"}
   ],
   "pending": ["c4 mid-derivation"],
   "delayed_jols": [
@@ -195,7 +195,7 @@ Tutor: 了解、[current] は state 保存して [new] に切り替える。
 {
   "completed_problems": ["p5"],
   "treatment_changes": [
-    {"concept_id": "c4", "from": "procedural", "to": "conceptual"}
+    {"concept_id": "c4", "from": "blackbox", "to": "whitebox"}
   ],
   "pending": ["Bromwich 積分の breakdown 未着手"],
   "delayed_jols": [

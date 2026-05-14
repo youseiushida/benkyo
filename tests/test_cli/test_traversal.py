@@ -22,12 +22,12 @@ def test_window(invoke):
     assert data["edge_count"] == 2
 
 
-def test_window_procedural_terminates(invoke):
+def test_window_blackbox_terminates(invoke):
     _setup(invoke)
     invoke(
         "treatment", "set",
         "--project", "prj1", "--concept", "c1",
-        "--treatment", "procedural",
+        "--treatment", "blackbox",
     )
     result = invoke("window", "--project", "prj1")
     data = parse_ok(result)
@@ -48,7 +48,7 @@ def test_frontier(invoke):
     invoke(
         "treatment", "set",
         "--project", "prj1", "--concept", "c1",
-        "--treatment", "procedural",
+        "--treatment", "blackbox",
     )
     result = invoke("frontier", "--project", "prj1")
     data = json.loads(result.output)

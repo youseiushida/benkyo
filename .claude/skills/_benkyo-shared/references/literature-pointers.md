@@ -2,32 +2,34 @@
 
 Which operational decision is based on which paper. Use when debugging "why are we doing this?" or when proposing a change to the rules.
 
+> **Terminology bridge**. The math-education literature we cite (Sinha & Kapur, Hiebert & Lefevre) uses the terms **"conceptual knowledge"** (understand the why) and **"procedural knowledge"** (apply the formula). benkyo implements these as the per-project **whitebox** (deep) and **blackbox** (tool-use) treatments. The bridge: paper's "conceptual" ≈ benkyo's "whitebox"; paper's "procedural" ≈ benkyo's "blackbox". We renamed in v0.3.0 to avoid the ACT-R sense of "procedural" (= automated expert knowledge), which is the opposite axis from what the math-ed papers mean.
+
 ## Sinha & Kapur (2021), *Review of Educational Research* — Productive Failure meta-analysis
 
 **Key effect**: PS-I (problem solving then instruction) outperforms I-PS for conceptual knowledge and transfer. Hedge's *g* = 0.36, 95% CI [0.20, 0.51]. Egger's test and trim-and-fill detected no funnel-plot asymmetry, but a p-curve-based alternative estimate (van Aert et al. 2016 method) put the true effect at *g* = 0.87 — i.e., the 0.36 main estimate may be a lower bound under that method, not a center of an interval. **Don't quote it as "0.36–0.87" — it's two different estimators**.
 
 **Used for**:
-- Default PS-I mode for conceptual treatment
+- Default PS-I mode for whitebox treatment
 - Identifying **"instruction building on student solutions"** as a key fidelity factor. The cleanest evidence is the subgroup contrast (Table 3): PS-I *with* instruction-building yields *g* = 0.56; PS-I *without* it yields *g* = 0.20 (subgroup *p* = .02). Note: by Pearson importance this predictor ranks at the top (~.28), but its multiple-regression β collapses to ≈ 0.01 once correlated predictors are included — so report the subgroup *g*, not a β coefficient.
 - Multiple-RSM generation step (have learner consider alternatives) — this is one of the predictors that **does** have a nonzero β in the regression (β ≈ 0.27).
 - Recognizing that low-graders and domain-general skills show reversed effect (use I-PS for true novices and domain-general; domain-general subgroup *g* = -0.17).
-- Procedural knowledge has *g* ≈ -0.03 (no PS-I advantage), justifying I-PS for procedural treatment.
+- Procedural knowledge has *g* ≈ -0.03 (no PS-I advantage), justifying I-PS for blackbox treatment.
 
-**Boundary**: PF requires *relevant* prior knowledge to activate. Cut and treatment must be set such that the conceptual node's prereqs are at sufficient level.
+**Boundary**: PF requires *relevant* prior knowledge to activate. Cut and treatment must be set such that the whitebox node's prereqs are at sufficient level.
 
 ## Kalyuga (2007), *Educational Psychology Review* — Expertise reversal effect
 
 **Key effect**: instructional methods effective for novices become harmful for experts. As expertise grows, scaffolding should decrease.
 
 **Used for**:
-- The treatment lifecycle (procedural for proficient items, conceptual for items to be understood)
+- The treatment lifecycle (blackbox for proficient items, whitebox for items to be understood)
 - Rapid diagnostic methods (first-step approach: show problem, ask the next move; **correlations up to** *r* = 0.92 with traditional knowledge tests across a series of studies, **with time reductions up to** 4.9x; Kalyuga 2006d / Kalyuga & Sweller 2004, as reviewed in Kalyuga 2007)
 - Tutorial adaptation: ES = 0.46 for adapted vs non-adapted (Kalyuga & Sweller 2004)
 - Avoiding over-scaffolding when learner is fluent — reduces breakdown depth, releases treatment
 
 **Used to justify**:
 - Reducing breakdown depth as expertise grows
-- Releasing concepts to procedural when learner is consistently solving
+- Releasing concepts to blackbox when learner is consistently solving
 - Initial cut decision based on learner's existing skill
 
 ## Rhodes & Tauber (2011), *Psychological Bulletin* — Delayed JOL meta-analysis
@@ -130,8 +132,8 @@ Which operational decision is based on which paper. Use when debugging "why are 
 
 | Decision | Primary paper |
 |---|---|
-| Default PS-I for conceptual | Sinha & Kapur (g = 0.36 [0.20, 0.51]) |
-| Default I-PS for procedural | Sinha & Kapur (g ≈ -0.03 for procedural) |
+| Default PS-I for whitebox | Sinha & Kapur (g = 0.36 [0.20, 0.51]) |
+| Default I-PS for blackbox | Sinha & Kapur (g ≈ -0.03 for blackbox) |
 | Instruction-building emphasis | Sinha & Kapur (subgroup g = 0.56 with vs 0.20 without; p = .02) |
 | Anticipation step | Bjork 2013 / Kornell |
 | Incidental framing of probes | Bertsch (d = 0.65 incidental vs 0.32 intentional) |

@@ -2,22 +2,22 @@
 
 Look-up tables for common operational decisions. Each table maps a situation to an action.
 
-## Treatment classification (procedural vs conceptual)
+## Treatment classification (blackbox vs whitebox)
 
 For each (project, concept) pair:
 
 | Situation | Treatment | Reason |
 |---|---|---|
-| Material/textbook teaches via tables and formulas only | procedural | match the course's intent |
-| Material/textbook teaches via derivation/proof | conceptual | match the course's intent |
-| Learner explicitly says "use it as a tool" / "暗記でいい" | procedural | learner intent |
-| Learner explicitly says "understand it" / "理解したい" | conceptual | learner intent |
-| Concept is the project's stated goal | conceptual | goal-level usually requires understanding |
-| Concept is far below the project's goal, used as background | procedural | conserve cognitive load |
-| Time pressure (e.g., exam imminent) | procedural | efficient short-term gain |
-| Rapid diagnostic shows learner already proficient | procedural | no value in conceptualizing what's mastered (Kalyuga) |
-| Rapid diagnostic shows learner is true novice | conceptual default, but with heavy I-PS scaffolding |
-| Unable to decide | conceptual (default) | safer, can release later if confirmed |
+| Material/textbook teaches via tables and formulas only | blackbox | match the course's intent |
+| Material/textbook teaches via derivation/proof | whitebox | match the course's intent |
+| Learner explicitly says "use it as a tool" / "暗記でいい" | blackbox | learner intent |
+| Learner explicitly says "understand it" / "理解したい" | whitebox | learner intent |
+| Concept is the project's stated goal | whitebox | goal-level usually requires understanding |
+| Concept is far below the project's goal, used as background | blackbox | conserve cognitive load |
+| Time pressure (e.g., exam imminent) | blackbox | efficient short-term gain |
+| Rapid diagnostic shows learner already proficient | blackbox | no value in whiteboxizing what's mastered (Kalyuga) |
+| Rapid diagnostic shows learner is true novice | whitebox default, but with heavy I-PS scaffolding |
+| Unable to decide | whitebox (default) | safer, can release later if confirmed |
 
 ## Edge type selection (prereq vs related)
 
@@ -65,18 +65,18 @@ For each session segment:
 
 ## Commit / release decision
 
-### Commit (procedural → conceptual)
+### Commit (blackbox → whitebox)
 
 | Signal | Action |
 |---|---|
 | Learner explicit: "理解したい" | confirm + commit |
 | Learner asks "なんで" twice on same concept | propose commit; confirm |
-| Learner mis-applies procedural reference repeatedly | propose commit; confirm |
+| Learner mis-applies blackbox reference repeatedly | propose commit; confirm |
 | Learner fails transfer to slightly varied problems | propose commit; confirm |
 | Prereqs not in good shape | DON'T commit yet; fix prereqs first |
 | Time pressure | DON'T commit; defer |
 
-### Release (conceptual → procedural)
+### Release (whitebox → blackbox)
 
 | Signal | Action |
 |---|---|
@@ -85,13 +85,13 @@ For each session segment:
 | Time pressure expressed | propose release; confirm |
 | Diminishing returns on deep approach | propose release; confirm |
 | Node is the project's core goal | DON'T release; fundamental |
-| Just committed; haven't given conceptual approach a chance | DON'T release; hysteresis (give 1 session) |
+| Just committed; haven't given whitebox approach a chance | DON'T release; hysteresis (give 1 session) |
 
 ## Confidence × correctness (after a problem attempt)
 
 | Confidence | Correct | Action |
 |---|---|---|
-| High | Correct | Verify process, consider release if procedural-eligible |
+| High | Correct | Verify process, consider release if blackbox-eligible |
 | High | Wrong | **HYPERCORRECTION moment** — explicit, contrasting correction; re-probe later in session |
 | Low | Correct | Verify process; if genuine, plan reinforcement; if accidental, more practice |
 | Low | Wrong | Standard correction via PS-I or worked example |

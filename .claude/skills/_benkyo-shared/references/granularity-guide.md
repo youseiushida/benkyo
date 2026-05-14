@@ -8,17 +8,17 @@ A concept node should be a single node if its scope satisfies these criteria tog
 
 ### Criterion 1: Single treatment unit
 
-A node should be the smallest unit that can be assigned procedural or conceptual treatment as a whole.
+A node should be the smallest unit that can be assigned blackbox or whitebox treatment as a whole.
 
-**Why this matters**: treatment annotation lives at the node level. If you want to treat part of a "concept" procedurally and another part conceptually, the node is too coarse.
+**Why this matters**: treatment annotation lives at the node level. If you want to treat part of a "concept" as blackbox and another part as whitebox, the node is too coarse.
 
-**Example**: "Laplace transform" — if you want the whole thing as a unit (table + properties + inverse + convolution) for "use as a tool", it's one node. If you want "convolution theorem" conceptual but the rest procedural, split off "convolution theorem".
+**Example**: "Laplace transform" — if you want the whole thing as a unit (table + properties + inverse + convolution) for "use as a tool", it's one node. If you want "convolution theorem" whitebox but the rest blackbox, split off "convolution theorem".
 
 ### Criterion 2: Uniform prerequisites
 
 A node's prerequisites should be roughly consistent across its sub-aspects.
 
-**Why this matters**: when you breakdown a conceptual node, you traverse to its prereqs. If different sub-aspects need different prereqs, breakdown becomes inconsistent.
+**Why this matters**: when you breakdown a whitebox node, you traverse to its prereqs. If different sub-aspects need different prereqs, breakdown becomes inconsistent.
 
 **Example**: "Differential equations" is too coarse — separable ODE needs only integration, linear ODE needs complex roots, Sturm-Liouville needs eigenvalues. These are wildly different prereqs. Split into solution-method-level nodes.
 
@@ -79,7 +79,7 @@ Run `concept find --content <...>` before adding any new concept to catch duplic
 
 ## Cross-project tension
 
-The global graph is shared, but treatments are per-project. If Project A wants coarse granularity ("Laplace transform" as one node) and Project B wants finer ("Laplace definition", "transform table", "inverse transform"), the global graph must support B's finer split. Project A can compensate by marking all fine nodes as procedural — coarse handling emerges from treatment, not granularity.
+The global graph is shared, but treatments are per-project. If Project A wants coarse granularity ("Laplace transform" as one node) and Project B wants finer ("Laplace definition", "transform table", "inverse transform"), the global graph must support B's finer split. Project A can compensate by marking all fine nodes as blackbox — coarse handling emerges from treatment, not granularity.
 
 **Rule**: split to the finest grain that any project needs. Coarser-use projects aggregate via treatment.
 

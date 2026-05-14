@@ -209,7 +209,7 @@ class TestProject:
         p1 = repo.create_problem(conn, "S", "A")
         c1 = repo.create_concept(conn, "X")
         proj = repo.create_project(conn, "課題", [p1["id"]])
-        repo.set_treatment(conn, proj["id"], c1["id"], "procedural")
+        repo.set_treatment(conn, proj["id"], c1["id"], "blackbox")
         result = repo.delete_project(conn, proj["id"])
         assert result["cascade"]["project_goals"] == 1
         assert result["cascade"]["project_concepts"] == 1
@@ -221,42 +221,42 @@ class TestProject:
 
 
 class TestTreatment:
-    def test_default_is_conceptual(self, conn):
+    def test_default_is_whitebox(self, conn):
         c = repo.create_concept(conn, "X")
         proj = repo.create_project(conn, "P")
         t = repo.get_treatment(conn, proj["id"], c["id"])
-        assert t["treatment"] == "conceptual"
+        assert t["treatment"] == "whitebox"
         assert t["default"] is True
 
-    def test_set_procedural_with_reference(self, conn):
+    def test_set_blackbox_with_reference(self, conn):
         c = repo.create_concept(conn, "X")
         proj = repo.create_project(conn, "P")
         t = repo.set_treatment(
-            conn, proj["id"], c["id"], "procedural", "参照内容"
+            conn, proj["id"], c["id"], "blackbox", "参照内容"
         )
-        assert t["treatment"] == "procedural"
+        assert t["treatment"] == "blackbox"
         assert t["reference_content"] == "参照内容"
         assert t["default"] is False
 
-    def test_set_conceptual_ignores_reference(self, conn):
+    def test_set_whitebox_ignores_reference(self, conn):
         c = repo.create_concept(conn, "X")
         proj = repo.create_project(conn, "P")
         t = repo.set_treatment(
-            conn, proj["id"], c["id"], "conceptual", "参照"
+            conn, proj["id"], c["id"], "whitebox", "参照"
         )
         assert t["reference_content"] is None
 
     def test_set_overwrites(self, conn):
         c = repo.create_concept(conn, "X")
         proj = repo.create_project(conn, "P")
-        repo.set_treatment(conn, proj["id"], c["id"], "procedural", "old")
-        t = repo.set_treatment(conn, proj["id"], c["id"], "procedural", "new")
+        repo.set_treatment(conn, proj["id"], c["id"], "blackbox", "old")
+        t = repo.set_treatment(conn, proj["id"], c["id"], "blackbox", "new")
         assert t["reference_content"] == "new"
 
     def test_unset(self, conn):
         c = repo.create_concept(conn, "X")
         proj = repo.create_project(conn, "P")
-        repo.set_treatment(conn, proj["id"], c["id"], "procedural")
+        repo.set_treatment(conn, proj["id"], c["id"], "blackbox")
         result = repo.unset_treatment(conn, proj["id"], c["id"])
         assert result["removed"] is True
         t = repo.get_treatment(conn, proj["id"], c["id"])
@@ -273,9 +273,9 @@ class TestTreatment:
         c1 = repo.create_concept(conn, "A")
         c2 = repo.create_concept(conn, "B")
         proj = repo.create_project(conn, "P")
-        repo.set_treatment(conn, proj["id"], c1["id"], "procedural")
-        repo.set_treatment(conn, proj["id"], c2["id"], "conceptual")
+        repo.set_treatment(conn, proj["id"], c1["id"], "blackbox")
+        repo.set_treatment(conn, proj["id"], c2["id"], "whitebox")
         all_t = repo.list_treatments(conn, proj["id"])
         assert len(all_t) == 2
-        proc_only = repo.list_treatments(conn, proj["id"], "procedural")
+        proc_only = repo.list_treatments(conn, proj["id"], "blackbox")
         assert len(proc_only) == 1

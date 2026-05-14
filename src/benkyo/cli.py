@@ -56,7 +56,8 @@ def cli(ctx: click.Context, db_path_override: str | None) -> None:
     """benkyo: problem-driven learning support CLI.
 
     Manages a global concept-dependency graph and per-project annotations
-    of procedural vs conceptual treatment for each concept.
+    of blackbox (use-as-tool) vs whitebox (understand-internals) treatment
+    for each concept.
     """
     ctx.ensure_object(dict)
     ctx.obj["db_path_override"] = db_path_override

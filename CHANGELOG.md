@@ -7,6 +7,88 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-14
+
+**Breaking**: treatment values renamed `procedural` → `blackbox`,
+`conceptual` → `whitebox`. Auto-migrating on first `connect()` so existing
+v0.2 DBs upgrade transparently; no user action needed.
+
+### Why
+
+The terms `procedural` / `conceptual` were borrowed from the math-education
+literature (Sinha & Kapur 2021, Hiebert & Lefevre 1986) where they mean what
+benkyo intended. But the same word *procedural* also denotes the opposite
+concept in cognitive psychology (ACT-R: automated expert knowledge) — the
+end-state of expertise, not a shortcut around it. That overlap was a
+persistent source of LLM-prior interference for the skill layer and of
+read-time friction for engineers. `blackbox` / `whitebox` is a cleaner
+metaphor for "use as a tool" vs "understand the internals", lines up with
+software-engineering intuition, and has no prior-knowledge collision.
+
+The mapping to cited papers is preserved in `literature-pointers.md` and
+README's terminology note: paper's "conceptual knowledge" ≈ benkyo's
+"whitebox treatment"; paper's "procedural knowledge" ≈ benkyo's "blackbox
+treatment".
+
+### Changed (breaking)
+
+- **DB schema**: `project_concepts.treatment` CHECK constraint values changed
+  from `('procedural', 'conceptual')` to `('blackbox', 'whitebox')`.
+- **CLI**: `benkyo treatment set --treatment <blackbox|whitebox>` (was
+  `<procedural|conceptual>`); `treatment list --treatment` filter same; help
+  text updated.
+- **Skill files**: all 5 `SKILL.md` and 7 of the 8 shared references in
+  `_benkyo-shared/references/` updated to the new vocabulary. `literature-
+  pointers.md` keeps "conceptual knowledge" / "procedural knowledge" only
+  where citing Sinha & Kapur directly, with an explicit terminology-bridge
+  note at the top of the file.
+- Cardinal-vocabulary rule extended to forbid `procedural`, `conceptual` in
+  learner-facing text (they're still internal-only terms when used at all).
+
+### Added
+
+- `_migrate_v02_to_v03()` in `db.py` — auto-detects an old `project_concepts`
+  CHECK constraint by inspecting `sqlite_master` and rebuilds the table with
+  the new values + new CHECK in a transaction. Idempotent. Runs on every
+  `connect()`; no-op for fresh and already-migrated DBs.
+- 3 migration regression tests (`tests/test_migration.py`): v0.2 DB migrates;
+  fresh DB no-op; re-open idempotent.
+
+### Fixed
+
+- **`benkyo-graph-edit` skill docs were out of sync with the CLI**. The body
+  said `concept merge` / `concept fork` / `problem merge` were "pending
+  implementation" and walked agents through a tedious manual edge-redirect
+  procedure, but those commands have existed in the CLI since v0.1.1. The
+  skill now invokes the real atomic commands, with explicit notes on
+  `--on-conflict` treatment-clash resolution and the deliberate
+  fork-copies-edges-but-not-treatments asymmetry. cli-cheatsheet.md and
+  nl-to-cli.md updated to match.
+- README positioning broadened from "Claude Code plugin" to "Agent Skills
+  bundle". The `SKILL.md` files use the open Agent Skills format and are
+  portable to any compatible agent.
+- **First-class Codex CLI support** via the repo's own plugin marketplace.
+  Added `.codex-plugin/plugin.json` (manifest pointing the `skills` field at
+  the existing `.claude/skills/` tree, so one tree serves both agents) and
+  `.agents/plugins/marketplace.json` (so `codex plugin marketplace add
+  youseiushida/benkyo` registers this repo as an installable source). End
+  users install with a single `codex plugin marketplace add` plus a TUI
+  install — no symlink, no manual copy. Central Codex Plugin Directory
+  listing is "coming soon" upstream; until then, the repo-as-marketplace
+  flow is the supported path. Behavior in Cursor / VS Code Copilot / Gemini
+  CLI still requires the agent-specific install (per their loaders);
+  unverified end-to-end.
+
+### Migration notes (for the lone v0.2.0 user)
+
+If you installed v0.2.0 and have a DB at the OS-default location, just
+upgrade: `uv tool install --force benkyo`. The next time anything opens the
+DB, the migration runs automatically and any existing `procedural` /
+`conceptual` rows become `blackbox` / `whitebox`. No manual SQL needed.
+
+The cleanest verification is `benkyo treatment list --project <id>` after
+upgrade: values should be `blackbox` / `whitebox` only.
+
 ## [0.2.0] - 2026-05-14
 
 Adds a queryable events log so the skills' research-grounded claims —
@@ -179,7 +261,8 @@ Initial private release of the CLI core.
 - `--db` flag and `BENKYO_DB` environment variable for DB path override.
 - platformdirs-based default DB location (OS-appropriate app data dir).
 
-[Unreleased]: https://github.com/youseiushida/benkyo/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/youseiushida/benkyo/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/youseiushida/benkyo/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/youseiushida/benkyo/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/youseiushida/benkyo/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/youseiushida/benkyo/releases/tag/v0.1.0

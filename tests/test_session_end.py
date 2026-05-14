@@ -27,7 +27,7 @@ class TestRecordSessionEnd:
         summary = {
             "completed_problems": ["p1"],
             "treatment_changes": [
-                {"concept_id": "c1", "from": "procedural", "to": "conceptual"}
+                {"concept_id": "c1", "from": "blackbox", "to": "whitebox"}
             ],
             "pending": ["c4 mid-breakdown"],
             "delayed_jols": [

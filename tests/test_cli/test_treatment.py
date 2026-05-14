@@ -10,24 +10,24 @@ def setup_basic(invoke):
     invoke("project", "create", "--metadata", "P")
 
 
-def test_default_is_conceptual(invoke):
+def test_default_is_whitebox(invoke):
     setup_basic(invoke)
     result = invoke("treatment", "get", "--project", "prj1", "--concept", "c1")
     data = parse_ok(result)
-    assert data["treatment"] == "conceptual"
+    assert data["treatment"] == "whitebox"
     assert data["default"] is True
 
 
-def test_set_procedural_with_reference(invoke):
+def test_set_blackbox_with_reference(invoke):
     setup_basic(invoke)
     result = invoke(
         "treatment", "set",
         "--project", "prj1", "--concept", "c1",
-        "--treatment", "procedural",
+        "--treatment", "blackbox",
         "--reference", "公式表",
     )
     data = parse_ok(result)
-    assert data["treatment"] == "procedural"
+    assert data["treatment"] == "blackbox"
     assert data["reference_content"] == "公式表"
 
 
@@ -36,7 +36,7 @@ def test_unset_returns_to_default(invoke):
     invoke(
         "treatment", "set",
         "--project", "prj1", "--concept", "c1",
-        "--treatment", "procedural",
+        "--treatment", "blackbox",
     )
     invoke("treatment", "unset", "--project", "prj1", "--concept", "c1")
     result = invoke("treatment", "get", "--project", "prj1", "--concept", "c1")

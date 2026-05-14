@@ -11,9 +11,9 @@ This skill governs how to tutor a learner who is actively learning within a benk
 
 The learner does NOT know these internal terms. Never use them in any learner-facing utterance — including technical summaries, status displays, "here's what I did" recaps, JSON-like prose, or aside notes:
 
-> procedural, conceptual, treatment, cut, prereq, related, node, edge, traversal, window, breakdown (as a noun like "the breakdown"), commit, release, project, graph, treatment-shift, frontier, ancestors, event, log, record (as a verb describing what you internally do), schema, JSON, metadata, session_end, delayed_jol, hypercorrection
+> blackbox, whitebox, treatment, cut, prereq, related, node, edge, traversal, window, breakdown (as a noun like "the breakdown"), commit, release, project, graph, treatment-shift, frontier, ancestors, event, log, record (as a verb describing what you internally do), schema, JSON, metadata, session_end, delayed_jol, hypercorrection
 
-If you find yourself wanting to say "プロジェクト作成完了" or "concept c5 を procedural にした" or "let me show you the breakdown of this node", STOP. Translate.
+If you find yourself wanting to say "プロジェクト作成完了" or "concept c5 を blackbox にした" or "let me show you the breakdown of this node", STOP. Translate.
 
 **Internal IDs are also forbidden** in learner-facing text. Never write `c1`, `c2`, `p1`, `prj1` etc. Refer to concepts and problems by their natural-language name or by quoting their content. Example:
 
@@ -76,10 +76,10 @@ For each segment of work, the **treatment of the active concept determines mode*
 
 | Treatment | Mode | What you do |
 |---|---|---|
-| procedural | **I-PS** | Provide the reference content; let the learner use it; offer a practice problem |
-| conceptual | **PS-I** | Pose a problem; let learner attempt without revealing; build instruction from their attempt |
+| blackbox | **I-PS** | Provide the reference content; let the learner use it; offer a practice problem |
+| whitebox | **PS-I** | Pose a problem; let learner attempt without revealing; build instruction from their attempt |
 
-**Override conditions** (switch from PS-I to I-PS even for conceptual node):
+**Override conditions** (switch from PS-I to I-PS even for whitebox node):
 - Learner is a **true novice** (no relevant prereqs available) — Kalyuga's expertise reversal: novice needs scaffolding
 - **Time pressure** explicitly mentioned by learner
 - **Direct request** for explanation ("教えて", "やり方教えて")
@@ -138,11 +138,11 @@ This catches surface-level understanding.
 
 ## I-PS execution
 
-For procedural concepts or override situations:
+For blackbox concepts or override situations:
 
 ### 1. Provide reference / worked example
 
-For procedural: fetch `concept_reference` content and show it. For conceptual under override: present a full worked example with all steps visible.
+For blackbox: fetch `concept_reference` content and show it. For whitebox under override: present a full worked example with all steps visible.
 
 ### 2. Faded scaffolds for follow-up practice
 
@@ -177,10 +177,10 @@ When the learner says 「分からない」, classify the actual stuck-type befo
 Only used when the learner is unclear about a concept itself (not problem text, not retrieval, not application).
 
 1. **Identify the concept** that's the source of confusion.
-2. **Check its treatment**: `benkyo treatment get`. If procedural, present the reference and return to the problem. If conceptual, proceed with breakdown.
+2. **Check its treatment**: `benkyo treatment get`. If blackbox, present the reference and return to the problem. If whitebox, proceed with breakdown.
 3. **Identify which prereq** to descend into. Use `benkyo breakdown --project --node` to see direct dependencies. Prefer the prereq the learner mentioned or stumbled on.
 4. **Descend one level** at a time. Never multi-prereq simultaneously.
-5. **At each level**: check treatment of the new node; procedural → reference and ascend; conceptual → continue or recurse.
+5. **At each level**: check treatment of the new node; blackbox → reference and ascend; whitebox → continue or recurse.
 6. **Default depth = 2 levels**. At level 3, briefly confirm with the learner. At level 4+, propose release or pivot.
 7. **Return to the original**: when breakdown resolves, explicitly come back up. "OK, now with Y in hand, let's go back to the original problem."
 
@@ -192,26 +192,26 @@ If the learner gets stuck during breakdown:
 
 When the learner asks to change depth, propose the corresponding action. **Always confirm in natural language** before executing.
 
-### Commit (procedural → conceptual)
+### Commit (blackbox → whitebox)
 
 Learner says: 「理解したい」「もっと深く」「なんでそうなる？」(direct), or you detect: repeated "なんで", apply errors with reference, transfer failures.
 
 Action:
 1. Confirm: "ここから掘り下げる？時間と集中力ある？"
-2. Internal: `benkyo treatment unset` (or `set conceptual`)
-3. **Ensure 1-level prereqs exist**: check `concept find` or `concept get` on expected prereqs; if missing, add them (default treatment procedural, with reference)
-4. Begin teaching loop for the now-conceptual node
+2. Internal: `benkyo treatment unset` (or `set whitebox`)
+3. **Ensure 1-level prereqs exist**: check `concept find` or `concept get` on expected prereqs; if missing, add them (default treatment blackbox, with reference)
+4. Begin teaching loop for the now-whitebox node
 
 Don't recurse — only one level of prereq added per commit. If teaching reveals deeper prereq gaps, commit those separately.
 
-### Release (conceptual → procedural)
+### Release (whitebox → blackbox)
 
 Learner says: 「もういい暗記で」「ざっくりで」「公式でいい」, or you detect: fatigue, repeated breakdown failures, time pressure.
 
 Action:
 1. Confirm: "ここは公式で使う形にして, 先に進もうか？"
 2. Prepare reference content for the node
-3. Internal: `benkyo treatment set --treatment procedural --reference <content>`
+3. Internal: `benkyo treatment set --treatment blackbox --reference <content>`
 4. Continue with the original goal
 
 Hysteresis: don't release a concept that was just committed in the same session unless the learner is clearly disengaging.
@@ -258,7 +258,7 @@ Detail: see `../_benkyo-shared/references/session-boundaries.md`.
 ## Vocabulary discipline
 
 Never use these terms in learner-facing utterances:
-- procedural, conceptual, treatment, cut, prereq, related, node, edge, traversal, window, breakdown (as a noun), commit, release, project, graph
+- blackbox, whitebox, treatment, cut, prereq, related, node, edge, traversal, window, breakdown (as a noun), commit, release, project, graph
 
 Translate every internal action into natural language. See `../_benkyo-shared/references/nl-to-cli.md` for translations.
 
