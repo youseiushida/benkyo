@@ -6,32 +6,34 @@
 
 **You can go deep without losing the syllabus.**
 
-When you study STEM with an AI, prerequisite chains cascade — you pull one thread and an hour later you're deep in the foundations with no clear path back to your exam. benkyo is a CLI + AI skill bundle that builds the dependency map for your specific materials and goals, so the full picture stays visible no matter how deep the breakdown goes. When a concept is too deep to derive right now, mark it as a tool and move on — without losing the thread.
+Drop your past exams, textbook, and syllabus into Claude Code. benkyo turns them into a persistent tutor that remembers what you decided to understand deeply, what to treat as a tool, and how far you are from the exam.
 
-**β** — CLI and skills are in English; Japanese-first interactions are the only evaluated end-to-end path. The agent adapts to the learner's language at runtime.
+Ask an AI to help you study and it will answer whatever you ask — one "why?" leads to another and an hour later you're three prerequisites deep with no idea whether you'll make it back to the exam. Without structure, AI tutoring drifts.
+
+benkyo keeps the dependency map visible throughout. You decide what to understand deeply and what to use as a tool. The path back to your goal never disappears — no matter how deep the breakdown goes.
 
 ## See it in action
 
-> *Mid-session, after initial setup from past exams and lecture notes:*
+> *First session, after dropping in lecture notes and practice problems:*
 
 ```
-Claude: First session of this project. Your goals are the three 2024 exam problems —
-        nonlinear optimization, KKT conditions, and simplex method.
-        Nothing solved yet. Where do you want to start?
+Claude: OK — goal is solving y'' + 3y' + 2y = e^(-t) with Laplace transforms.
+        You said "I just need to be able to use it", so let's start practical.
+        Quick calibration: what does ∫₀^∞ e^(-st) dt give you?
 
-You:    Honestly, I know nothing about this field.
+You:    1/s? The exponential decays to zero.
 
-Claude: Got it — switching to explain → work through it → practice mode.
-        Quick calibration first: f(x) = x² − 4x + 7, find the minimum.
+Claude: Exactly — that integral is the Laplace transform definition.
+        Now apply L{} to both sides of the ODE.
+        What does the y'' term become?
 
-You:    It's a quadratic with a positive leading coefficient,
-        so the minimum is at the vertex. Easy.
+You:    L{y''} = s²Y(s) − sy(0) − y'(0) ... so s²Y − 1, with the initial conditions.
 
-Claude: Perfect. Now let's take that same idea to multiple variables —
-        that's exactly what exam problem 1 needs...
+Claude: Right. Solve for Y(s), then partial fractions are in your reference table.
+        Try it — I'll check your algebra.
 ```
 
-The tutor read your project state from the database, proposed a starting point based on your goals, calibrated your current level in one question, and advanced — without you explaining any context.
+The tutor read the project state from the database, calibrated in two questions, and handed the problem back — partial fractions are marked as a tool (amber in the graph), so it gave a table rather than a derivation.
 
 At any point, ask to see the map (`show me the map` / `全体見せて`):
 
@@ -70,6 +72,8 @@ benkyo render --project prj1 --format dot | dot -Tpng > graph.png
 ```
 
 ## Get started
+
+**β** — CLI and skills are in English; Japanese-first interactions are the only evaluated end-to-end path. The agent adapts to the learner's language at runtime.
 
 ### 1. Install the CLI
 

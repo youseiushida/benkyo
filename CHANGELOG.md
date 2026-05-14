@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-05-15
+
+### Changed
+
+- **README: contrast paragraph added** — explicit "why not just Claude?" answer
+  immediately after the opening pitch; β note moved from hero section to just
+  before Get started; conversation opener rewritten to be more tutor-like.
+
 ## [0.4.5] - 2026-05-15
 
 ### Changed
