@@ -63,9 +63,8 @@ def test_render_blackbox_marker(invoke):
         "公式",
     )
     result = invoke("render", "--project", "prj1", "--format", "mermaid")
-    # c2 が cylinder で出る
-    assert "c2[(" in result.output
-    assert "blackbox" in result.output
+    assert "class c2 blackbox" in result.output
+    assert "fde68a" in result.output
 
 
 def test_render_pipeable_to_dot(invoke):

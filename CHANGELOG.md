@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-05-14
+
+### Fixed
+
+- **`--scope project` now shows all reachable concepts** — previous implementation
+  queried `project_concepts` as a membership filter, so default-whitebox concepts
+  (no explicit `treatment set` call) were invisible. Replaced with the same BFS
+  as `window` but without the blackbox-terminal rule.
+- **Graph styling: cylinder removed** — blackbox concepts now render as rectangles
+  with amber fill (`#fde68a`) instead of 3D cylinders. Whitebox concepts get light
+  blue fill (`#dbeafe`); problems get light grey (`#f0f4ff`). All three node types
+  use `classDef` in mermaid and `fillcolor` in DOT.
+
 ## [0.4.0] - 2026-05-14
 
 ### Added
@@ -294,7 +307,8 @@ Initial private release of the CLI core.
 - `--db` flag and `BENKYO_DB` environment variable for DB path override.
 - platformdirs-based default DB location (OS-appropriate app data dir).
 
-[Unreleased]: https://github.com/youseiushida/benkyo/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/youseiushida/benkyo/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/youseiushida/benkyo/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/youseiushida/benkyo/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/youseiushida/benkyo/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/youseiushida/benkyo/compare/v0.1.1...v0.2.0

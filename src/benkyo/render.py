@@ -38,18 +38,21 @@ def to_dot(window_data: dict[str, Any], graph_name: str = "benkyo") -> str:
         if node["type"] == "problem":
             label = _dot_escape(_truncate(node["statement"], 40))
             lines.append(
-                f'    "{node_id}" [label="{label}", shape=box, style=rounded];'
+                f'    "{node_id}" [label="{label}", '
+                f'shape=box, style="rounded,filled", fillcolor="#f0f4ff"];'
             )
         elif node["type"] == "concept":
             label = _dot_escape(_concept_label(node))
             if node["treatment"] == "blackbox":
                 lines.append(
-                    f'    "{node_id}" [label="{label}\\n[blackbox]", '
-                    f'shape=cylinder, style=filled, fillcolor="lightgrey"];'
+                    f'    "{node_id}" [label="{label}", '
+                    f'shape=box, style=filled, fillcolor="#fde68a", '
+                    f'color="#d97706", penwidth=2];'
                 )
             else:
                 lines.append(
-                    f'    "{node_id}" [label="{label}", shape=box];'
+                    f'    "{node_id}" [label="{label}", '
+                    f'shape=box, style=filled, fillcolor="#dbeafe", color="#3b82f6"];'
                 )
 
     for edge in window_data["edges"]:
@@ -98,18 +101,22 @@ def to_mermaid(window_data: dict[str, Any]) -> str:
     lines = ["graph TD"]
     blackbox_ids: list[str] = []
 
+    problem_ids: list[str] = []
+    whitebox_ids: list[str] = []
+
     for node in window_data["nodes"]:
         node_id = node["id"]
         if node["type"] == "problem":
             label = _mermaid_escape(_truncate(node["statement"], 40))
             lines.append(f'    {node_id}(["{label}"])')
+            problem_ids.append(node_id)
         elif node["type"] == "concept":
             label = _mermaid_escape(_concept_label(node))
+            lines.append(f'    {node_id}["{label}"]')
             if node["treatment"] == "blackbox":
-                lines.append(f'    {node_id}[("{label}")]')
                 blackbox_ids.append(node_id)
             else:
-                lines.append(f'    {node_id}["{label}"]')
+                whitebox_ids.append(node_id)
 
     for edge in window_data["edges"]:
         from_id, to_id, etype = edge["from"], edge["to"], edge["type"]
@@ -120,8 +127,18 @@ def to_mermaid(window_data: dict[str, Any]) -> str:
 
     if window_data["nodes"]:
         lines.append(
-            "    classDef blackbox fill:#e8d5b7,stroke:#8b6914,stroke-width:2px"
+            "    classDef problem  fill:#f0f4ff,stroke:#6b7280,stroke-width:1px"
         )
+        lines.append(
+            "    classDef whitebox fill:#dbeafe,stroke:#3b82f6,stroke-width:1px"
+        )
+        lines.append(
+            "    classDef blackbox fill:#fde68a,stroke:#d97706,stroke-width:2px"
+        )
+        if problem_ids:
+            lines.append(f"    class {','.join(problem_ids)} problem")
+        if whitebox_ids:
+            lines.append(f"    class {','.join(whitebox_ids)} whitebox")
         if blackbox_ids:
             lines.append(f"    class {','.join(blackbox_ids)} blackbox")
 

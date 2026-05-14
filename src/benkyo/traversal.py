@@ -116,28 +116,38 @@ def window(conn: sqlite3.Connection, project_id: str) -> dict[str, Any]:
 
 
 def project_scope(conn: sqlite3.Connection, project_id: str) -> dict[str, Any]:
-    """Return all nodes registered in the project with edges between them.
+    """BFS from goals via prereq edges without the blackbox-terminal rule.
 
-    Includes all concepts with explicit treatment rows (project_concepts) plus
-    all goal problems. Treatment for each concept is resolved relative to project_id.
+    Unlike window(), blackbox concepts do not stop traversal — their prereqs
+    are followed too. This gives the full prereq graph rooted at the goals.
     """
     project = repo.get_project(conn, project_id)
+    goal_ids = project["goals"]
 
-    concept_rows = conn.execute(
-        "SELECT concept_id FROM project_concepts WHERE project_id = ?", (project_id,)
-    ).fetchall()
-    all_node_ids: set[str] = {r["concept_id"] for r in concept_rows}
-    all_node_ids.update(project["goals"])
+    visited: set[str] = set(goal_ids)
+    queue: list[str] = list(goal_ids)
+
+    while queue:
+        current = queue.pop(0)
+        rows = conn.execute(
+            "SELECT to_id FROM edges WHERE from_id = ? AND edge_type = 'prereq'",
+            (current,),
+        ).fetchall()
+        for row in rows:
+            to_id = row["to_id"]
+            if to_id not in visited:
+                visited.add(to_id)
+                queue.append(to_id)
 
     treatment_cache: dict[str, dict[str, Any]] = {}
     nodes = [
         _node_payload(conn, project_id, nid, treatment_cache)
-        for nid in sorted(all_node_ids)
+        for nid in sorted(visited)
     ]
 
     edges: list[dict[str, Any]] = []
-    if all_node_ids:
-        node_list = sorted(all_node_ids)
+    if visited:
+        node_list = sorted(visited)
         placeholders = ",".join("?" * len(node_list))
         edge_rows = conn.execute(
             f"""SELECT from_id, to_id, edge_type FROM edges

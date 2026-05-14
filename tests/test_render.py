@@ -69,9 +69,9 @@ class TestDot:
         for nid in ("p1", "c1", "c2"):
             assert f'"{nid}"' in dot
 
-    def test_blackbox_has_marker(self):
+    def test_blackbox_fill_color(self):
         dot = render.to_dot(_sample_window())
-        assert "[blackbox]" in dot
+        assert "fde68a" in dot
 
     def test_concept_label_uses_name(self):
         dot = render.to_dot(_sample_window())
@@ -134,9 +134,10 @@ class TestMermaid:
         mm = render.to_mermaid(_sample_window())
         assert "c1[" in mm and "c1[(" not in mm
 
-    def test_blackbox_uses_cylinder(self):
+    def test_blackbox_uses_rectangle_not_cylinder(self):
         mm = render.to_mermaid(_sample_window())
-        assert "c2[(" in mm
+        assert 'c2["' in mm
+        assert "c2[(" not in mm
 
     def test_concept_label_uses_name(self):
         mm = render.to_mermaid(_sample_window())
@@ -156,23 +157,17 @@ class TestMermaid:
         assert "c1 -.- c2" in mm
         assert "c1 -.-> c2" not in mm
 
-    def test_blackbox_classdef_present(self):
+    def test_classdef_all_three_present(self):
         mm = render.to_mermaid(_sample_window())
+        assert "classDef problem" in mm
+        assert "classDef whitebox" in mm
         assert "classDef blackbox" in mm
-        assert "class c2 blackbox" in mm
 
-    def test_no_class_assignment_when_no_blackbox(self):
-        window = {
-            "nodes": [
-                {"id": "c1", "type": "concept", "content": "A", "treatment": "whitebox"}
-            ],
-            "edges": [],
-            "node_count": 1,
-            "edge_count": 0,
-        }
-        mm = render.to_mermaid(window)
-        assert "classDef blackbox" in mm
-        assert "class c1 blackbox" not in mm
+    def test_class_assignments(self):
+        mm = render.to_mermaid(_sample_window())
+        assert "class p1 problem" in mm
+        assert "class c1 whitebox" in mm
+        assert "class c2 blackbox" in mm
 
     def test_empty_window(self):
         mm = render.to_mermaid({"nodes": [], "edges": [], "node_count": 0, "edge_count": 0})
