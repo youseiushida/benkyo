@@ -10,6 +10,7 @@ from benkyo.paths import ensure_parent_dir
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS concept_nodes (
     id TEXT PRIMARY KEY,
+    name TEXT,
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -81,6 +82,16 @@ CREATE TABLE IF NOT EXISTS id_counters (
 """
 
 
+def _extract_name(content: str) -> str:
+    """Extract short display name from content using 'Name: definition' convention."""
+    colon_pos = content.find(":")
+    if colon_pos > 0:
+        candidate = content[:colon_pos].strip()
+        if candidate:
+            return candidate
+    return content[:30].strip()
+
+
 def _migrate_v02_to_v03(conn: sqlite3.Connection) -> None:
     """v0.2 → v0.3: rename treatment values procedural→blackbox, conceptual→whitebox.
 
@@ -143,12 +154,38 @@ def _migrate_v02_to_v03(conn: sqlite3.Connection) -> None:
         raise
 
 
+def _migrate_v03_to_v04(conn: sqlite3.Connection) -> None:
+    """v0.3 → v0.4: add name column to concept_nodes.
+
+    Populates name from content using the 'Name: definition' convention.
+    Idempotent: checks PRAGMA table_info before acting.
+    """
+    columns = [
+        row[1]
+        for row in conn.execute("PRAGMA table_info(concept_nodes)").fetchall()
+    ]
+    if not columns or "name" in columns:
+        return
+
+    conn.execute("BEGIN")
+    try:
+        conn.execute("ALTER TABLE concept_nodes ADD COLUMN name TEXT")
+        rows = conn.execute("SELECT id, content FROM concept_nodes").fetchall()
+        for row in rows:
+            name = _extract_name(row["content"])
+            conn.execute(
+                "UPDATE concept_nodes SET name = ? WHERE id = ?", (name, row["id"])
+            )
+        conn.execute("COMMIT")
+    except Exception:
+        conn.execute("ROLLBACK")
+        raise
+
+
 def connect(db_path: Path) -> sqlite3.Connection:
     """Open a DB connection. Enables FK enforcement and initializes the schema.
 
-    Auto-runs the v0.2 → v0.3 treatment-value migration if it detects an old
-    schema. Migration is transparent and idempotent — already-migrated DBs and
-    fresh DBs are untouched.
+    Auto-runs migrations transparently. All migrations are idempotent.
     """
     ensure_parent_dir(db_path)
     conn = sqlite3.connect(db_path, isolation_level=None)
@@ -157,6 +194,7 @@ def connect(db_path: Path) -> sqlite3.Connection:
     conn.execute("PRAGMA journal_mode = WAL")
     conn.execute("PRAGMA busy_timeout = 5000")
     _migrate_v02_to_v03(conn)
+    _migrate_v03_to_v04(conn)
     conn.executescript(SCHEMA)
     return conn
 

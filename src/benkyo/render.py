@@ -11,6 +11,12 @@ def _truncate(text: str, max_len: int = 60) -> str:
     return text
 
 
+def _concept_label(node: dict[str, Any]) -> str:
+    """Short display label for a concept node (name → fallback to truncated content)."""
+    name = (node.get("name") or "").strip()
+    return name if name else _truncate(node["content"])
+
+
 # ---------------------------------------------------------------------------
 # DOT (Graphviz)
 # ---------------------------------------------------------------------------
@@ -30,21 +36,20 @@ def to_dot(window_data: dict[str, Any], graph_name: str = "benkyo") -> str:
     for node in window_data["nodes"]:
         node_id = node["id"]
         if node["type"] == "problem":
-            label = _truncate(node["statement"])
+            label = _dot_escape(_truncate(node["statement"], 40))
             lines.append(
-                f'    "{node_id}" [label="{_dot_escape(label)}", '
-                f'shape=box, style=rounded];'
+                f'    "{node_id}" [label="{label}", shape=box, style=rounded];'
             )
         elif node["type"] == "concept":
-            content = _truncate(node["content"])
+            label = _dot_escape(_concept_label(node))
             if node["treatment"] == "blackbox":
                 lines.append(
-                    f'    "{node_id}" [label="{_dot_escape(content)}\\n[blackbox]", '
+                    f'    "{node_id}" [label="{label}\\n[blackbox]", '
                     f'shape=cylinder, style=filled, fillcolor="lightgrey"];'
                 )
             else:
                 lines.append(
-                    f'    "{node_id}" [label="{_dot_escape(content)}", shape=box];'
+                    f'    "{node_id}" [label="{label}", shape=box];'
                 )
 
     for edge in window_data["edges"]:
@@ -85,29 +90,39 @@ def to_mermaid(window_data: dict[str, Any]) -> str:
 
     Edge conventions:
         - prereq:  -->
-        - related: -.->
+        - related: -.-  (undirected dashed — symmetric "easy to confuse" relationship)
+
+    Treatment styling:
+        - blackbox nodes get classDef fill to distinguish at a glance
     """
     lines = ["graph TD"]
+    blackbox_ids: list[str] = []
 
     for node in window_data["nodes"]:
         node_id = node["id"]
         if node["type"] == "problem":
-            label = _truncate(node["statement"])
-            lines.append(f'    {node_id}(["{_mermaid_escape(label)}"])')
+            label = _mermaid_escape(_truncate(node["statement"], 40))
+            lines.append(f'    {node_id}(["{label}"])')
         elif node["type"] == "concept":
-            content = _truncate(node["content"])
+            label = _mermaid_escape(_concept_label(node))
             if node["treatment"] == "blackbox":
-                lines.append(
-                    f'    {node_id}[("{_mermaid_escape(content)} [blackbox]")]'
-                )
+                lines.append(f'    {node_id}[("{label}")]')
+                blackbox_ids.append(node_id)
             else:
-                lines.append(f'    {node_id}["{_mermaid_escape(content)}"]')
+                lines.append(f'    {node_id}["{label}"]')
 
     for edge in window_data["edges"]:
         from_id, to_id, etype = edge["from"], edge["to"], edge["type"]
         if etype == "prereq":
             lines.append(f"    {from_id} --> {to_id}")
         elif etype == "related":
-            lines.append(f"    {from_id} -.-> {to_id}")
+            lines.append(f"    {from_id} -.- {to_id}")
+
+    if window_data["nodes"]:
+        lines.append(
+            "    classDef blackbox fill:#e8d5b7,stroke:#8b6914,stroke-width:2px"
+        )
+        if blackbox_ids:
+            lines.append(f"    class {','.join(blackbox_ids)} blackbox")
 
     return "\n".join(lines)

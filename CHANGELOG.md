@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-14
+
+### Added
+
+- **`name` field on `concept_nodes`** — short display label, independent of
+  `content`. Auto-extracted from the first `Name: ...` token in content; set
+  explicitly with `--name`. Concept graph labels, breakdown output, and
+  `concept list` all use `name` instead of the full definition text.
+  - `benkyo concept add --name "凸関数" --content "凸関数: f: C→ℝ は..."` (explicit)
+  - `benkyo concept update <id> --name "LP標準形"` (label-only update)
+  - Auto-migration: `_migrate_v03_to_v04()` adds the column and backfills all
+    existing concepts from their content. Idempotent; runs on every `connect()`.
+- **`benkyo render --scope <window|project|graph>`** — three render scopes:
+  - `window` (default): existing BFS-from-goals behavior.
+  - `project`: all nodes explicitly registered in the project
+    (`project_concepts` + goal problems). Reveals practice problems, formula
+    concepts, and related items that fall outside the window.
+  - `graph`: entire global concept/problem graph.
+- **Mermaid treatment styling**: `classDef blackbox fill:#e8d5b7,...` emitted
+  when there are nodes; `class <ids> blackbox` marks blackbox nodes. Blackbox
+  status is now distinguishable at a glance without relying on cylinder shape
+  alone.
+- **3 migration regression tests** (`tests/test_migration.py`): v0.3 DB gets
+  name column; v0.2 DB gets name column via chained migration; v0.4 DB idempotent.
+
+### Fixed
+
+- **Related edges in mermaid are now undirected** (`-.-` instead of `-.->`)
+  — symmetric "easy to confuse" relationships no longer imply a direction.
+- **Problem labels truncated to 40 chars** in both mermaid and DOT. Previously
+  full statement text (100-500 chars) was used as the node label, making
+  rendered graphs unreadable.
+
 ## [0.3.0] - 2026-05-14
 
 **Breaking**: treatment values renamed `procedural` → `blackbox`,
@@ -261,7 +294,8 @@ Initial private release of the CLI core.
 - `--db` flag and `BENKYO_DB` environment variable for DB path override.
 - platformdirs-based default DB location (OS-appropriate app data dir).
 
-[Unreleased]: https://github.com/youseiushida/benkyo/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/youseiushida/benkyo/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/youseiushida/benkyo/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/youseiushida/benkyo/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/youseiushida/benkyo/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/youseiushida/benkyo/compare/v0.1.0...v0.1.1

@@ -14,16 +14,21 @@ def concept_group():
 
 
 @concept_group.command(name="add")
+@click.option(
+    "--name",
+    default=None,
+    help="Short display name for graph labels (auto-extracted from content if omitted)",
+)
 @click.option("--content", default=None, help="Concept content. Pass '-' to read from stdin")
 @click.option("--content-file", default=None, type=click.Path(), help="Read content from file")
 @click.pass_context
 @handle_errors
-def add(ctx, content, content_file):
+def add(ctx, name, content, content_file):
     """Add a new concept node."""
     text = resolve_text(content, content_file)
     if text is None:
         raise click.UsageError("--content or --content-file is required")
-    output_ok(repo.create_concept(get_conn(ctx), text))
+    output_ok(repo.create_concept(get_conn(ctx), text, name=name))
 
 
 @concept_group.command(name="get")
@@ -37,16 +42,17 @@ def get(ctx, concept_id):
 
 @concept_group.command(name="update")
 @click.argument("concept_id")
+@click.option("--name", default=None, help="Short display name for graph labels")
 @click.option("--content", default=None)
 @click.option("--content-file", default=None, type=click.Path())
 @click.pass_context
 @handle_errors
-def update(ctx, concept_id, content, content_file):
-    """Update the content of a concept node."""
+def update(ctx, concept_id, name, content, content_file):
+    """Update the content and/or name of a concept node."""
     text = resolve_text(content, content_file)
-    if text is None:
-        raise click.UsageError("--content or --content-file is required")
-    output_ok(repo.update_concept(get_conn(ctx), concept_id, text))
+    if text is None and name is None:
+        raise click.UsageError("--content, --content-file, or --name is required")
+    output_ok(repo.update_concept(get_conn(ctx), concept_id, content=text, name=name))
 
 
 @concept_group.command(name="delete")

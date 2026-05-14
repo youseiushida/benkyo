@@ -183,7 +183,7 @@ Each operational rule in the skills is backed by a published effect. The table b
 
 ```bash
 uv sync --dev
-uv run pytest                       # 182 tests
+uv run pytest                       # 192 tests
 benkyo --help
 benkyo schema                       # JSON tree of the full CLI surface
 ```

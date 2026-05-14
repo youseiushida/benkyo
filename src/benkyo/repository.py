@@ -32,6 +32,16 @@ KNOWN_EVENT_KINDS = (
 )
 
 
+def _extract_name(content: str) -> str:
+    """Extract short display name from content using 'Name: definition' convention."""
+    colon_pos = content.find(":")
+    if colon_pos > 0:
+        candidate = content[:colon_pos].strip()
+        if candidate:
+            return candidate
+    return content[:30].strip()
+
+
 def _row_to_dict(row: sqlite3.Row | None) -> dict[str, Any] | None:
     return dict(row) if row is not None else None
 
@@ -76,14 +86,17 @@ def _node_exists(conn: sqlite3.Connection, node_id: str) -> bool:
 # =======================================================================
 
 
-def create_concept(conn: sqlite3.Connection, content: str) -> dict[str, Any]:
+def create_concept(
+    conn: sqlite3.Connection, content: str, name: str | None = None
+) -> dict[str, Any]:
     content = (content or "").strip()
     if not content:
         raise InvalidArgError("content must not be empty")
+    concept_name = (name or "").strip() or _extract_name(content)
     new_id = next_id(conn, CONCEPT_PREFIX)
     conn.execute(
-        "INSERT INTO concept_nodes (id, content) VALUES (?, ?)",
-        (new_id, content),
+        "INSERT INTO concept_nodes (id, name, content) VALUES (?, ?, ?)",
+        (new_id, concept_name, content),
     )
     return get_concept(conn, new_id)
 
@@ -98,16 +111,35 @@ def get_concept(conn: sqlite3.Connection, concept_id: str) -> dict[str, Any]:
 
 
 def update_concept(
-    conn: sqlite3.Connection, concept_id: str, content: str
+    conn: sqlite3.Connection,
+    concept_id: str,
+    content: str | None = None,
+    name: str | None = None,
 ) -> dict[str, Any]:
-    content = (content or "").strip()
-    if not content:
-        raise InvalidArgError("content must not be empty")
-    cur = conn.execute(
-        "UPDATE concept_nodes SET content = ? WHERE id = ?", (content, concept_id)
-    )
-    if cur.rowcount == 0:
+    if content is None and name is None:
+        raise InvalidArgError("nothing to update")
+    if content is not None:
+        content = content.strip()
+        if not content:
+            raise InvalidArgError("content must not be empty")
+    if name is not None:
+        name = name.strip()
+        if not name:
+            raise InvalidArgError("name must not be empty")
+
+    if conn.execute(
+        "SELECT 1 FROM concept_nodes WHERE id = ?", (concept_id,)
+    ).fetchone() is None:
         raise NotFoundError(f"concept not found: {concept_id}")
+
+    if content is not None:
+        conn.execute(
+            "UPDATE concept_nodes SET content = ? WHERE id = ?", (content, concept_id)
+        )
+    if name is not None:
+        conn.execute(
+            "UPDATE concept_nodes SET name = ? WHERE id = ?", (name, concept_id)
+        )
     return get_concept(conn, concept_id)
 
 
@@ -985,11 +1017,12 @@ def fork_concept(
     new_content = content.strip() if content else src["content"]
     if not new_content:
         raise InvalidArgError("content must not be empty")
+    new_name = _extract_name(new_content)
 
     new_id = next_id(conn, CONCEPT_PREFIX)
     conn.execute(
-        "INSERT INTO concept_nodes (id, content) VALUES (?, ?)",
-        (new_id, new_content),
+        "INSERT INTO concept_nodes (id, name, content) VALUES (?, ?, ?)",
+        (new_id, new_name, new_content),
     )
 
     edges_copied = 0

@@ -13,15 +13,21 @@ benkyo info                  # show DB path, source, and counts per table
 ## Concept nodes
 
 ```
-benkyo concept add --content <text>                  # or --content-file <path>, or --content -  (stdin)
+benkyo concept add --content <text> [--name <short_label>]   # --name auto-extracted from content if omitted; or --content-file / --content -  (stdin)
 benkyo concept get <id>
-benkyo concept update <id> --content <text>
-benkyo concept delete <id>                           # cascades to project_concepts and edges
-benkyo concept list [--query <text>]                 # substring filter on content
-benkyo concept find --content <text>                 # exact-match (identity check; ALWAYS run before add)
+benkyo concept update <id> [--content <text>] [--name <short_label>]   # at least one required
+benkyo concept delete <id>                                    # cascades to project_concepts and edges
+benkyo concept list [--query <text>]                         # substring filter on content
+benkyo concept find --content <text>                         # exact-match (identity check; ALWAYS run before add)
 benkyo concept merge <source_id> --into <canonical_id> [--on-conflict <error|keep_canonical|keep_source>]
-                                                     # collapse duplicate; redirects edges + project_concepts; --on-conflict resolves treatment clashes
-benkyo concept fork <source_id> --content <text>     # or --content-file; create a new concept that copies source's edges (treatments NOT copied)
+                                                             # collapse duplicate; redirects edges + project_concepts; --on-conflict resolves treatment clashes
+benkyo concept fork <source_id> --content <text>             # or --content-file; create a new concept that copies source's edges (treatments NOT copied)
+```
+
+**`name` field**: short label used in graph diagrams and breakdown output. Auto-extracted from the first `Name: ...` token in content. Override explicitly when the auto-extracted form is wrong or you want a custom abbreviation.
+```
+benkyo concept add --name "凸関数" --content "凸関数: f: C→ℝ は全ての x,y と t∈[0,1] で..."
+benkyo concept update c7 --name "LP標準形"    # update label only, keep content
 ```
 
 ## Problem nodes
@@ -77,12 +83,18 @@ benkyo ancestors --project <id> --node <id>                 # nodes that depend 
 ## Render (visualization)
 
 ```
-benkyo render --project <id> --format <mermaid|dot> [--output <path>]
+benkyo render --project <id> [--scope <window|project|graph>] [--format <mermaid|dot>] [--output <path>]
 ```
 
+- Default scope: `window` (BFS from goal problems via prereq edges).
+- `--scope project`: all nodes explicitly registered in the project (project_concepts + goals). Use when you want the full picture — practice problems, formula concepts, and related items outside the window.
+- `--scope graph`: entire global concept/problem graph.
 - Default format: mermaid (embeddable in markdown).
 - Without `--output`: raw text on stdout (pipe-friendly: `... --format dot | dot -Tpng > graph.png`).
+- Node labels: concept `name` field (short); problem statement truncated to 40 chars.
 - Shape conventions: problem = stadium, whitebox = rectangle, blackbox = cylinder.
+- Related edges are undirected dashed (`-.-` in mermaid) — symmetric "easy to confuse" relationship.
+- Blackbox nodes get `classDef blackbox` fill color in mermaid output.
 
 ## Events (append-only log of state changes)
 

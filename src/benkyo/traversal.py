@@ -31,6 +31,7 @@ def _node_payload(
         return {
             "id": node_id,
             "type": "concept",
+            "name": cdata.get("name"),
             "content": cdata["content"],
             "treatment": t["treatment"],
             "reference_content": t.get("reference_content"),
@@ -105,6 +106,85 @@ def window(conn: sqlite3.Connection, project_id: str) -> dict[str, Any]:
             {"from": r["from_id"], "to": r["to_id"], "type": r["edge_type"]}
             for r in edge_rows
         ]
+
+    return {
+        "nodes": nodes,
+        "edges": edges,
+        "node_count": len(nodes),
+        "edge_count": len(edges),
+    }
+
+
+def project_scope(conn: sqlite3.Connection, project_id: str) -> dict[str, Any]:
+    """Return all nodes registered in the project with edges between them.
+
+    Includes all concepts with explicit treatment rows (project_concepts) plus
+    all goal problems. Treatment for each concept is resolved relative to project_id.
+    """
+    project = repo.get_project(conn, project_id)
+
+    concept_rows = conn.execute(
+        "SELECT concept_id FROM project_concepts WHERE project_id = ?", (project_id,)
+    ).fetchall()
+    all_node_ids: set[str] = {r["concept_id"] for r in concept_rows}
+    all_node_ids.update(project["goals"])
+
+    treatment_cache: dict[str, dict[str, Any]] = {}
+    nodes = [
+        _node_payload(conn, project_id, nid, treatment_cache)
+        for nid in sorted(all_node_ids)
+    ]
+
+    edges: list[dict[str, Any]] = []
+    if all_node_ids:
+        node_list = sorted(all_node_ids)
+        placeholders = ",".join("?" * len(node_list))
+        edge_rows = conn.execute(
+            f"""SELECT from_id, to_id, edge_type FROM edges
+                WHERE from_id IN ({placeholders})
+                AND to_id IN ({placeholders})
+                ORDER BY from_id, to_id, edge_type""",
+            (*node_list, *node_list),
+        ).fetchall()
+        edges = [
+            {"from": r["from_id"], "to": r["to_id"], "type": r["edge_type"]}
+            for r in edge_rows
+        ]
+
+    return {
+        "nodes": nodes,
+        "edges": edges,
+        "node_count": len(nodes),
+        "edge_count": len(edges),
+    }
+
+
+def graph_scope(conn: sqlite3.Connection, project_id: str) -> dict[str, Any]:
+    """Return the entire global graph with treatments from project_id."""
+    repo.get_project(conn, project_id)  # validates project
+
+    concept_ids = [
+        r["id"]
+        for r in conn.execute("SELECT id FROM concept_nodes ORDER BY id").fetchall()
+    ]
+    problem_ids = [
+        r["id"]
+        for r in conn.execute("SELECT id FROM problem_nodes ORDER BY id").fetchall()
+    ]
+
+    treatment_cache: dict[str, dict[str, Any]] = {}
+    nodes = [
+        _node_payload(conn, project_id, nid, treatment_cache)
+        for nid in sorted(concept_ids + problem_ids)
+    ]
+
+    edge_rows = conn.execute(
+        "SELECT from_id, to_id, edge_type FROM edges ORDER BY from_id, to_id, edge_type"
+    ).fetchall()
+    edges = [
+        {"from": r["from_id"], "to": r["to_id"], "type": r["edge_type"]}
+        for r in edge_rows
+    ]
 
     return {
         "nodes": nodes,
